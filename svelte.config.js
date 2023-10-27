@@ -17,10 +17,14 @@ const config = {
 			fallback: undefined,
 			precompress: false,
 			strict: true
-		})
+		}),
+		paths: {
+            base: process.argv.includes('dev') ? '' : process.env.BASE_PATH
+        },
+		
 	},
 	preprocess: vitePreprocess()
 };
-config.paths = { base: process.env.NODE_ENV === 'production' ? '/my-profile-svelte' : '' }
+
 
 export default config;
