@@ -1,5 +1,6 @@
 <script lang="ts">
     import "../app.css";
+    import { base } from "$app/paths";
 </script>
 
 <div
@@ -9,11 +10,11 @@ shadow-sm font-mono
 "
 >
     <div class="flex-1">
-        <a class="btn btn-ghost normal-case text-xl" href="/">Home</a>
+        <a class="btn btn-ghost normal-case text-xl" href="{base}/">Home</a>
     </div>
     <div class="flex-none">
         <ul class="menu menu-horizontal px-1">
-            <li><a href="/about">About</a></li>
+            <li><a href="{base}/about">About</a></li>
         </ul>
     </div>
 </div>
