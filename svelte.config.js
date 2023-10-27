@@ -21,6 +21,6 @@ const config = {
 	},
 	preprocess: vitePreprocess()
 };
-config.paths = { base: process.argv.includes('dev') ? '' : process.env.BASE_PATH }
+config.paths = { base: process.env.NODE_ENV === 'production' ? '/my-profile-svelte' : '' }
 
 export default config;
