@@ -12,5 +12,12 @@
         "desc": "Language Translation App using Al Real-time translation for Thai & English With Python using CHATGPT , BING CHAT and BARD . Easy-to-use interface.",
         "image": "https://cdn.discordapp.com/attachments/585069524445822986/1211036259686948986/image.png?ex=65ecbc68&is=65da4768&hm=835d7aff7fee22a4520269b162867a7d36cef0fe47208b410a8c523849b04636&",
         "url": "https://github.com/watchakorn-18k/Language-Translation-App-using-AI"
+    },
+    {
+        "id": 3,
+        "name": "web-backend-supabase-fastapi",
+        "desc": "Python web application offering functionalities through FastAPI, with Supabase handling the database needs.",
+        "image": "https://cdn.discordapp.com/attachments/585069524445822986/1211045056807440464/image.png?ex=65ecc499&is=65da4f99&hm=52bd207f2531c2e61feb3d5115c5b04173081190dc87931c75ead5ff6cf90e0c&",
+        "url": "https://github.com/watchakorn-18k/web-backend-supabase-fastapi"
     }
 ]
