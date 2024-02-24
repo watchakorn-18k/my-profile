@@ -21,7 +21,7 @@ shadow-sm font-mono
       </li>
     </ul>
   </div>
-  <div class="flex-none">
+  <div class="flex-none hidden lg:flex">
     <ul class="menu menu-horizontal px-1">
       <li>
         <a href="https://watchakorn-18k.github.io/wk-docs/tutorials"

@@ -4,20 +4,44 @@
         "name": "Generate Image AI Web",
         "desc": "Generate Image With Text with EdgeGPT reverse engineering with React and FastApi.",
         "image": "https://media.discordapp.net/attachments/585069524445822986/1211033165687422976/image.png?ex=65ecb986&is=65da4486&hm=2db1c1fc997a5549e1aa69a214576fabce552dcc2c13cb0db8a2560916c69621",
-        "url": "https://github.com/watchakorn-18k/generate_image_web"
+        "url": "https://github.com/watchakorn-18k/generate_image_web",
+        "tag": [
+            "python",
+            "fastAPI"
+        ]
     },
     {
         "id": 1,
         "name": "Language Translation App using AI",
         "desc": "Language Translation App using Al Real-time translation for Thai & English With Python using CHATGPT , BING CHAT and BARD . Easy-to-use interface.",
         "image": "https://cdn.discordapp.com/attachments/585069524445822986/1211036259686948986/image.png?ex=65ecbc68&is=65da4768&hm=835d7aff7fee22a4520269b162867a7d36cef0fe47208b410a8c523849b04636&",
-        "url": "https://github.com/watchakorn-18k/Language-Translation-App-using-AI"
+        "url": "https://github.com/watchakorn-18k/Language-Translation-App-using-AI",
+        "tag": [
+            "python",
+            "flet"
+        ]
     },
     {
         "id": 3,
         "name": "web-backend-supabase-fastapi",
         "desc": "Python web application offering functionalities through FastAPI, with Supabase handling the database needs.",
         "image": "https://cdn.discordapp.com/attachments/585069524445822986/1211045056807440464/image.png?ex=65ecc499&is=65da4f99&hm=52bd207f2531c2e61feb3d5115c5b04173081190dc87931c75ead5ff6cf90e0c&",
-        "url": "https://github.com/watchakorn-18k/web-backend-supabase-fastapi"
+        "url": "https://github.com/watchakorn-18k/web-backend-supabase-fastapi",
+        "tag": [
+            "python",
+            "fastAPI",
+            "supabase"
+        ]
+    },
+    {
+        "id": 4,
+        "name": "bot-news-it-discord",
+        "desc": "Bot updates news about IT and programming with Update every hour",
+        "image": "https://cdn.discordapp.com/attachments/1100109646909407404/1211076253847789679/image.png?ex=65ece1a7&is=65da6ca7&hm=0ee99b163ac3649b29916fd091db2e5ec014a783a08d37b6fdde11bbcec445ba&",
+        "url": "https://github.com/watchakorn-18k/bot-news-it-discord",
+        "tag": [
+            "python",
+            "discord.py"
+        ]
     }
 ]
