@@ -7,7 +7,7 @@
 </div>
 
 <div class="flex flex-col justify-center items-center gap-10 m-6 font-mono">
-  {#each portfolios as port (user.id)}
+  {#each portfolios as port (port.id)}
     <div
       class="card w-11/12 xl:w-2/4 bg-base-100 border border-neutral hover:border-neutral-content ease-in-out transition-all duration-500 shadow-xl hover:bg-base-200"
     >
