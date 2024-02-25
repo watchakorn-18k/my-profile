@@ -1,0 +1,114 @@
+{
+    "data": [
+        {
+            "color": "#3572A5",
+            "name": "Python",
+            "percent": 54.49
+        },
+        {
+            "color": "#00ADD8",
+            "name": "Go",
+            "percent": 26.02
+        },
+        {
+            "color": "#16ce40",
+            "name": "Bash",
+            "percent": 4.16
+        },
+        {
+            "color": "#292929",
+            "name": "JSON",
+            "percent": 2.32
+        },
+        {
+            "color": "#3178c6",
+            "name": "TypeScript",
+            "percent": 2.27
+        },
+        {
+            "color": "#083fa1",
+            "name": "Markdown",
+            "percent": 2.11
+        },
+        {
+            "color": "#fcb32c",
+            "name": "MDX",
+            "percent": 2.06
+        },
+        {
+            "color": "#f1e05a",
+            "name": "JavaScript",
+            "percent": 1.56
+        },
+        {
+            "color": "#dea584",
+            "name": "Rust",
+            "percent": 1.05
+        },
+        {
+            "color": "#e34c26",
+            "name": "HTML5",
+            "percent": 0.84
+        },
+        {
+            "color": "#9c4221",
+            "name": "TOML",
+            "percent": 0.67
+        },
+        {
+            "color": "#dc9658",
+            "name": "Text",
+            "percent": 0.64
+        },
+        {
+            "color": "#cb171e",
+            "name": "YAML",
+            "percent": 0.52
+        },
+        {
+            "color": "#563d7c",
+            "name": "CSS",
+            "percent": 0.37
+        },
+        {
+            "color": "#F44D27",
+            "name": "Git Config",
+            "percent": 0.29
+        },
+        {
+            "color": "#d62728",
+            "name": "Other",
+            "percent": 0.24
+        },
+        {
+            "color": "#000080",
+            "name": "Lua",
+            "percent": 0.13
+        },
+        {
+            "color": "#9467bd",
+            "name": "RPMSpec",
+            "percent": 0.12
+        },
+        {
+            "color": "#C1F12E",
+            "name": "Batchfile",
+            "percent": 0.08
+        },
+        {
+            "color": "#ff3e00",
+            "name": "Svelte",
+            "percent": 0.04
+        },
+        {
+            "color": "#8c564b",
+            "name": "SSH Config",
+            "percent": 0.02
+        },
+        {
+            "color": "#3D6117",
+            "name": "TeX",
+            "percent": 0.0
+        }
+    ]
+}
