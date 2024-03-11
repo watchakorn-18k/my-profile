@@ -12,6 +12,20 @@
       alt="metrics"
     />
   </div>
+  <div class="flex flex-col justify-start items-center m-8 p-8 gap-4">
+    <p>👋Hello, I'm wk18k</p>
+    <p>👨🏻‍💻I'm a Backend Developer</p>
+    <p>
+      Github : <a class="link" href="https://github.com/watchakorn-18k"
+        >watchakorn-18k</a
+      >
+    </p>
+    <p>
+      Linkedin : <a class="link" href="https://www.linkedin.com/in/watchakorn/"
+        >watchakorn</a
+      >
+    </p>
+  </div>
   <h1 class="xl:text-2xl m-8">Last 30 days for coding</h1>
   <div>
     <div class="flex flex-col justify-start items-center gap-4 w-full">

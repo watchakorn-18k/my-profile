@@ -12,7 +12,7 @@ shadow-sm font-mono
   <div class="flex-1">
     <a class="btn btn-ghost normal-case text-xl" href="{base}/">Home</a>
   </div>
-  <div class="flex-none">
+  <div class="flex-none hidden lg:flex">
     <ul class="menu menu-horizontal px-1">
       <li>
         <a href="https://watchakorn-18k.github.io/wk-docs/blog" target="_blank"
@@ -33,6 +33,11 @@ shadow-sm font-mono
   <div class="flex-none">
     <ul class="menu menu-horizontal px-1">
       <li><a href="{base}/about">About</a></li>
+    </ul>
+  </div>
+  <div class="flex-none">
+    <ul class="menu menu-horizontal px-1">
+      <li><a href="{base}/certificate">Certificate</a></li>
     </ul>
   </div>
   <div class="flex-none">
