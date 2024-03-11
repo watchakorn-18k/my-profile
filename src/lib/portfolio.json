@@ -50,7 +50,7 @@
         "id": 5,
         "name": "bot-news-it-discord",
         "desc": "Bot updates news about IT and programming with Update every hour",
-        "image": "https://cdn.discordapp.com/attachments/1100109646909407404/1211076253847789679/image.png?ex=65ece1a7&is=65da6ca7&hm=0ee99b163ac3649b29916fd091db2e5ec014a783a08d37b6fdde11bbcec445ba&",
+        "image": "https://cdn.discordapp.com/attachments/585069524445822986/1216867613435629758/image.png?ex=6601f347&is=65ef7e47&hm=415f44f1f7f1526169e61c8141cdd372e4d0abe4ecddbc225ad7fee1070ee7e4&",
         "url": "https://github.com/watchakorn-18k/bot-news-it-discord",
         "tag": [
             "python",
