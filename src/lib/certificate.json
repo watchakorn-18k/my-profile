@@ -43,5 +43,10 @@
         "id": 8,
         "name": "GO Programming Language",
         "image_url": "https://cdn.discordapp.com/attachments/1216871698301714564/1216876041340059688/image.png?ex=6601fb20&is=65ef8620&hm=0f4de41f7cc1a9b854942fc57b4eb4892fd6be84836fd4ddba7e37907c5f2322&"
+    },
+    {
+        "id": 9,
+        "name": "GO (Basic)",
+        "image_url": "https://cdn.discordapp.com/attachments/1216871698301714564/1216890186978426952/image.png?ex=6602084d&is=65ef934d&hm=674481d0dc5748e2d604c77e0a5d622615c6c327fbe79092eedb88f023e73d86&"
     }
 ]
