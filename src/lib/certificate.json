@@ -48,5 +48,10 @@
         "id": 9,
         "name": "GO (Basic)",
         "image_url": "https://cdn.discordapp.com/attachments/1216871698301714564/1216890186978426952/image.png?ex=6602084d&is=65ef934d&hm=674481d0dc5748e2d604c77e0a5d622615c6c327fbe79092eedb88f023e73d86&"
+    },
+    {
+        "id": 10,
+        "name": "Back End Development and APIs",
+        "image_url": "https://cdn.discordapp.com/attachments/1219151336952827994/1219151337158213682/image.png?ex=660a4229&is=65f7cd29&hm=3be75db2d94417b3fa78d8e0426280315911741d60aed64aabc7efacd0cba8fd&"
     }
 ]
