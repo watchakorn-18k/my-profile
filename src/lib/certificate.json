@@ -53,5 +53,20 @@
         "id": 10,
         "name": "Back End Development and APIs",
         "image_url": "https://cdn.discordapp.com/attachments/1219151336952827994/1219151337158213682/image.png?ex=660a4229&is=65f7cd29&hm=3be75db2d94417b3fa78d8e0426280315911741d60aed64aabc7efacd0cba8fd&"
+    },
+    {
+        "id": 11,
+        "name": "Back End Development and APIs",
+        "image_url": "https://cdn.discordapp.com/attachments/1219151336952827994/1219151337158213682/image.png?ex=660a4229&is=65f7cd29&hm=3be75db2d94417b3fa78d8e0426280315911741d60aed64aabc7efacd0cba8fd&"
+    },
+    {
+        "id": 12,
+        "name": "React - The Complete Guide 2024 (incl. React Router & Redux)",
+        "image_url": "https://cdn.discordapp.com/attachments/1219193395285721178/1219193395675660329/UC-021d9ffe-93ff-4e0a-b21f-291817f5654b.jpg?ex=660a6955&is=65f7f455&hm=d13bae8f95b4eaecee07ce526c4a54fbe314cd860170af9de41698b789313fca&"
+    },
+    {
+        "id": 13,
+        "name": "Complete C# Unity Game Developer 2D",
+        "image_url": "https://cdn.discordapp.com/attachments/1219193521291005952/1219193521488265216/UC-cbc99da1-2a6f-4c7f-a25e-9a7b148a073c.jpg?ex=660a6973&is=65f7f473&hm=2ebb44c098ae5c218b4676413c88bd624814f4e93f6e1824d472a6f31fdfe45a&"
     }
 ]
