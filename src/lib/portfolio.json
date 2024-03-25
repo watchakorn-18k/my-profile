@@ -3,7 +3,7 @@
         "id": 0,
         "name": "Generate Image AI Web",
         "desc": "Generate Image With Text with EdgeGPT reverse engineering with React and FastApi.",
-        "image": "https://media.discordapp.net/attachments/585069524445822986/1211033165687422976/image.png?ex=65ff2e86&is=65ecb986&hm=06353081423abac3c645a2bcb35a30c7812b4837a1819405cc5b89e3fc027c01&=&format=webp&quality=lossless&width=440&height=182",
+        "image": "https://raw.githubusercontent.com/watchakorn-18k/my-profile/master/src/lib/assets/project/Generate_Image_AI_Web.png",
         "url": "https://github.com/watchakorn-18k/generate_image_web",
         "tag": [
             "python",
@@ -15,7 +15,7 @@
         "id": 1,
         "name": "Language Translation App using AI",
         "desc": "Language Translation App using Al Real-time translation for Thai & English With Python using CHATGPT , BING CHAT and BARD . Easy-to-use interface.",
-        "image": "https://cdn.discordapp.com/attachments/585069524445822986/1211036259686948986/image.png?ex=65ff3168&is=65ecbc68&hm=a03e0dee7e82078007c24402ce9b522dd47b1a51daaec63561cdb0d5d3f262f4&",
+        "image": "https://raw.githubusercontent.com/watchakorn-18k/my-profile/master/src/lib/assets/project/Language_Translation_App_using_AI.png",
         "url": "https://github.com/watchakorn-18k/Language-Translation-App-using-AI",
         "tag": [
             "python",
@@ -26,7 +26,7 @@
         "id": 3,
         "name": "web-backend-supabase-fastapi",
         "desc": "Python web application offering functionalities through FastAPI, with Supabase handling the database needs.",
-        "image": "https://cdn.discordapp.com/attachments/585069524445822986/1211045056807440464/image.png?ex=65ff3999&is=65ecc499&hm=f76e90a85d1ace755ac978f76a95d6f629d40ab3e999e920bcd95f805413655e&",
+        "image": "https://raw.githubusercontent.com/watchakorn-18k/my-profile/master/src/lib/assets/project/web_fastapi_backend_supabase.png",
         "url": "https://github.com/watchakorn-18k/web-backend-supabase-fastapi",
         "tag": [
             "python",
@@ -50,7 +50,7 @@
         "id": 5,
         "name": "bot-news-it-discord",
         "desc": "Bot updates news about IT and programming with Update every hour",
-        "image": "https://cdn.discordapp.com/attachments/585069524445822986/1216867613435629758/image.png?ex=6601f347&is=65ef7e47&hm=415f44f1f7f1526169e61c8141cdd372e4d0abe4ecddbc225ad7fee1070ee7e4&",
+        "image": "https://raw.githubusercontent.com/watchakorn-18k/my-profile/master/src/lib/assets/project/bot_discord.png",
         "url": "https://github.com/watchakorn-18k/bot-news-it-discord",
         "tag": [
             "python",
@@ -61,7 +61,7 @@
         "id": 6,
         "name": "VTT-2-SRT",
         "desc": "🚀 Fast VTT to SRT conv. No ads. Easy to use. TailwindCSS Styling. 📥",
-        "image": "https://media.discordapp.net/attachments/581018943041306641/1214618218140799037/image.png?ex=65f9c45d&is=65e74f5d&hm=d5c8d57e15072889afde99aa9cd4f6eddd428f837be06237566327637dad99a8&=&format=webp&quality=lossless&width=692&height=671",
+        "image": "https://raw.githubusercontent.com/watchakorn-18k/my-profile/master/src/lib/assets/project/vtt_str.png",
         "url": "https://github.com/watchakorn-18k/VTT-2-SRT",
         "tag": [
             "JavaScript"
@@ -71,7 +71,7 @@
         "id": 7,
         "name": "python-editor-on-browser",
         "desc": "Can write python code on your website as well , Monaco-Editor and working with Pyodide.",
-        "image": "https://media.discordapp.net/attachments/581018943041306641/1214619714228326420/image.png?ex=65f9c5c2&is=65e750c2&hm=8f87303b963670cc1577f1aca36f8e726db67aa2a8a251e156aa4bcbf4854a86&=&format=webp&quality=lossless&width=1348&height=670",
+        "image": "https://raw.githubusercontent.com/watchakorn-18k/my-profile/master/src/lib/assets/project/python-editor-on-browser.png",
         "url": "https://github.com/watchakorn-18k/python-editor-on-browser",
         "tag": [
             "JavaScript"
@@ -81,7 +81,7 @@
         "id": 8,
         "name": "web_emc2",
         "desc": "Energy calculation web app ( e = mc2 )",
-        "image": "https://media.discordapp.net/attachments/581018943041306641/1214620651432706088/image.png?ex=65f9c6a1&is=65e751a1&hm=e04e0a29831b0e2c85bcefac3c7e31b3af346debdd6457bc0a8d4030c83a78c3&=&format=webp&quality=lossless&width=719&height=463",
+        "image": "https://raw.githubusercontent.com/watchakorn-18k/my-profile/master/src/lib/assets/project/web_emc.png",
         "url": "https://github.com/watchakorn-18k/web_emc2",
         "tag": [
             "JavaScript",
@@ -90,7 +90,7 @@
     },
     {
         "id": 9,
-        "name": "web_emc2",
+        "name": "Fenv",
         "desc": "⏩ Module for Generate a folder, establish a virtual environment with a single command.",
         "image": "https://camo.githubusercontent.com/4c821150de1050fd96c4309ec4dca0871a8b0d8f019e03c0184c928b8dce8439/68747470733a2f2f692e696d6775722e636f6d2f48374d555277332e676966",
         "url": "https://github.com/watchakorn-18k/Fenv",
@@ -102,7 +102,7 @@
         "id": 10,
         "name": "flet-notion-with-python",
         "desc": "🔭 Notion-Flet API demo on Github",
-        "image": "https://media.discordapp.net/attachments/581018943041306641/1214622858504831086/image.png?ex=65f9c8b0&is=65e753b0&hm=6db7ad3aec1977cf392a6c0dd2c68e83e3f17d9c729ea8365f9d9a98267c29c3&",
+        "image": "https://raw.githubusercontent.com/watchakorn-18k/my-profile/master/src/lib/assets/project/flet_notion.png",
         "url": "https://github.com/watchakorn-18k/flet-notion-with-python",
         "tag": [
             "python",
@@ -114,7 +114,7 @@
         "id": 11,
         "name": "viewpos",
         "desc": "🔭 Display images, show mouse positions, and pixel values.",
-        "image": "https://cdn.discordapp.com/attachments/581018943041306641/1214623449687785523/image.png?ex=65f9c93d&is=65e7543d&hm=ec8fc7d7981aeea2dfd57b20a23731e46458fad3f07b108b91898b1c0092d0c2&",
+        "image": "https://raw.githubusercontent.com/watchakorn-18k/my-profile/master/src/lib/assets/project/viewpos.png",
         "url": "https://github.com/watchakorn-18k/viewpos",
         "tag": [
             "Html",
@@ -125,7 +125,7 @@
         "id": 12,
         "name": "number_guessing_game",
         "desc": "🤔Guess the number! 🤩Built with Python's flet library. 🤓Challenge yourself and have fun!",
-        "image": "https://cdn.discordapp.com/attachments/581018943041306641/1214624188367769732/image.png?ex=65f9c9ed&is=65e754ed&hm=17f7a5c6afe7842868a0b2e0abaa13780bc4e8e300cfaf3314ad321593859c4f&",
+        "image": "https://raw.githubusercontent.com/watchakorn-18k/my-profile/master/src/lib/assets/project/number_game.png",
         "url": "https://github.com/watchakorn-18k/number_guessing_game",
         "tag": [
             "python",
@@ -136,7 +136,7 @@
         "id": 13,
         "name": "Soccer Management System",
         "desc": "Soccer management system 🏆🥅📝 built with PHP, manage teams & players with ease, track your progress.",
-        "image": "https://cdn.discordapp.com/attachments/581018943041306641/1214625754906759209/image.png?ex=65f9cb62&is=65e75662&hm=658ca96d1c1862275fc5184e001ffaf8953e5d32992c3f70227dad62063579d8&",
+        "image": "https://raw.githubusercontent.com/watchakorn-18k/my-profile/master/src/lib/assets/project/php_score.png",
         "url": "https://github.com/watchakorn-18k/number_guessing_game",
         "tag": [
             "php",
@@ -148,7 +148,7 @@
         "id": 14,
         "name": "Pure-Python-Non-Js-With-Pyscript",
         "desc": "Python scripts for 🤩 automation and 🤔 problem-solving. 🐍 No JS, just pure Python!",
-        "image": "https://cdn.discordapp.com/attachments/581018943041306641/1214626595063730268/image.png?ex=65f9cc2a&is=65e7572a&hm=4ca7baf18d5f8f15ca4ca6b9098565e0ceff2b2291cad7efb905862474b6021e&",
+        "image": "https://raw.githubusercontent.com/watchakorn-18k/my-profile/master/src/lib/assets/project/pure_python.png",
         "url": "https://github.com/watchakorn-18k/Pure-Python-Non-Js-With-Pyscript",
         "tag": [
             "Pyscript",
@@ -171,7 +171,7 @@
         "id": 16,
         "name": "kivy-snippets",
         "desc": "Kivy snippets for VS Code Dev. 💻 Create apps faster with Kivy snippets. 🤩 Quickly insert code snippets & save time!",
-        "image": "https://media.discordapp.net/attachments/581018943041306641/1214627781594447882/image.png?ex=65f9cd45&is=65e75845&hm=bf3fcf47a5b1675f69c41884432855a4c6ad91fbf657c7ecfcd575a1265c693f&=&format=webp&quality=lossless&width=948&height=634",
+        "image": "https://raw.githubusercontent.com/watchakorn-18k/my-profile/master/src/lib/assets/project/kivy.png",
         "url": "https://github.com/watchakorn-18k/kivy-snippets",
         "tag": [
             "extension-VSCODE",
@@ -182,7 +182,7 @@
         "id": 17,
         "name": "NOBI-Random-Drink",
         "desc": "nobicha-sikhiu system random drink menu",
-        "image": "https://cdn.discordapp.com/attachments/581018943041306641/1214628690474836010/image.png?ex=65f9ce1e&is=65e7591e&hm=7f283c6162bf02ca0a122629fe9df9c04c460054bf95e061dc2c33395ed9755a&",
+        "image": "https://raw.githubusercontent.com/watchakorn-18k/my-profile/master/src/lib/assets/project/nobi.png",
         "url": "https://github.com/watchakorn-18k/NOBI-Random-Drink",
         "tag": [
             "JavaScript"
@@ -192,7 +192,7 @@
         "id": 18,
         "name": "Random-FoodThai-DesktopAppication",
         "desc": "🍔 Random Food Thai Desktop Application created with tkinter and python dev wk-18k",
-        "image": "https://cdn.discordapp.com/attachments/581018943041306641/1214631041264910427/image.png?ex=65f9d04e&is=65e75b4e&hm=f8a4a17d9113c6153fe55ff70152f5331f3a751e440b6e335ad758fd436eceb7&",
+        "image": "https://raw.githubusercontent.com/watchakorn-18k/my-profile/master/src/lib/assets/project/random_food_thai.png",
         "url": "https://github.com/watchakorn-18k/Random-FoodThai-DesktopAppication",
         "tag": [
             "python",
@@ -203,7 +203,7 @@
         "id": 19,
         "name": "ScanORC-from-VideoSubFinderWXW",
         "desc": "🔎 ORC Scanner: Scan documents with Google's OCR API. 🤖 Automate document processing & save time. 📄",
-        "image": "https://cdn.discordapp.com/attachments/581018943041306641/1214631635279020173/image.png?ex=65f9d0dc&is=65e75bdc&hm=9f696af67549a8162cd54aa7908a0ee60c14c8c0be00935b46cd0255b9b44abc&",
+        "image": "https://raw.githubusercontent.com/watchakorn-18k/my-profile/master/src/lib/assets/project/scan_orc.png",
         "url": "https://github.com/watchakorn-18k/ScanORC-from-VideoSubFinderWXW",
         "tag": [
             "python",
@@ -215,7 +215,7 @@
         "id": 20,
         "name": "SubtitleYoutubeDownloader",
         "desc": "Download YouTube videos with subtitles easily using Python and Tkinter. 🐍📹💻",
-        "image": "https://cdn.discordapp.com/attachments/581018943041306641/1214632319017820222/image.png?ex=65f9d17f&is=65e75c7f&hm=92cce908d01c2bc6f3bb33ac50761e6e2f141d2fa8e75b187f6fd4a4dfcf8842&",
+        "image": "https://raw.githubusercontent.com/watchakorn-18k/my-profile/master/src/lib/assets/project/SubtitleYoutubeDownloader.png",
         "url": "https://github.com/watchakorn-18k/ScanORC-from-VideoSubFinderWXW",
         "tag": [
             "python",
@@ -226,7 +226,7 @@
         "id": 21,
         "name": "pyscript-for-education",
         "desc": "Pyscript to automate website tasks. 🤖🤓😎",
-        "image": "https://cdn.discordapp.com/attachments/581018943041306641/1214633574590976152/image.png?ex=65f9d2aa&is=65e75daa&hm=7db0b20c112ad30400463577c9c84f7df42cab6b6e043fa7b3d5829b8bf4c206&",
+        "image": "https://raw.githubusercontent.com/watchakorn-18k/my-profile/master/src/lib/assets/project/pyscript.png",
         "url": "https://github.com/watchakorn-18k/pyscript-for-education",
         "tag": [
             "Pyscript"
@@ -236,7 +236,7 @@
         "id": 22,
         "name": "Simple-App-from-Flet",
         "desc": "A Simple App built with Python and Flet. 🐍💻 Easy to use and customize. 🤗",
-        "image": "https://cdn.discordapp.com/attachments/585069524445822986/1219154469103861760/68747470733a2f2f6d656469612e646973636f72646170702e6e65742f6174746163686d656e74732f3538313031383934333034313330363634312f3938353738353932313637393032383234342f756e6b6e6f776e2e706e673f77696474683d333331266865696768743d353332.png?ex=660a4514&is=65f7d014&hm=161035ccdecfbce10545427640b5cfbf17ef2bdce8892a84a48a273034228c05&",
+        "image": "https://raw.githubusercontent.com/watchakorn-18k/my-profile/master/src/lib/assets/project/simple_app.gif",
         "url": "https://github.com/watchakorn-18k/Simple-App-from-Flet",
         "tag": [
             "python",
