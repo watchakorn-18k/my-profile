@@ -2,98 +2,98 @@
     "data": [
         {
             "name": "Go",
-            "percent": 40.08,
+            "percent": 49.0,
             "color": "#00ADD8"
         },
         {
             "name": "Python",
-            "percent": 36.96,
+            "percent": 28.14,
             "color": "#3572A5"
         },
         {
-            "name": "TypeScript",
-            "percent": 4.23,
-            "color": "#3178c6"
-        },
-        {
-            "name": "Svelte",
-            "percent": 2.94,
-            "color": "#ff3e00"
-        },
-        {
-            "name": "Bash",
-            "percent": 2.84,
-            "color": "#16ce40"
-        },
-        {
-            "name": "MDX",
-            "percent": 2.6,
-            "color": "#fcb32c"
-        },
-        {
             "name": "Markdown",
-            "percent": 2.55,
+            "percent": 6.07,
             "color": "#083fa1"
         },
         {
+            "name": "Svelte",
+            "percent": 4.1,
+            "color": "#ff3e00"
+        },
+        {
             "name": "JSON",
-            "percent": 2.15,
+            "percent": 3.52,
             "color": "#292929"
         },
         {
-            "name": "JavaScript",
-            "percent": 1.87,
-            "color": "#f1e05a"
+            "name": "Bash",
+            "percent": 2.99,
+            "color": "#16ce40"
         },
         {
-            "name": "Rust",
-            "percent": 1.09,
-            "color": "#dea584"
-        },
-        {
-            "name": "TOML",
-            "percent": 0.69,
-            "color": "#9c4221"
+            "name": "TypeScript",
+            "percent": 2.4,
+            "color": "#3178c6"
         },
         {
             "name": "Git Config",
-            "percent": 0.51,
+            "percent": 0.9,
             "color": "#F44D27"
         },
         {
-            "name": "HTML",
-            "percent": 0.42,
-            "color": "#e34c26"
+            "name": "JavaScript",
+            "percent": 0.83,
+            "color": "#f1e05a"
         },
         {
-            "name": "CSS",
-            "percent": 0.38,
-            "color": "#563d7c"
-        },
-        {
-            "name": "YAML",
-            "percent": 0.29,
-            "color": "#cb171e"
-        },
-        {
-            "name": "Other",
-            "percent": 0.18,
+            "name": "Docker",
+            "percent": 0.65,
             "color": "#dc9658"
         },
         {
+            "name": "MDX",
+            "percent": 0.6,
+            "color": "#fcb32c"
+        },
+        {
+            "name": "C#",
+            "percent": 0.27,
+            "color": "#178600"
+        },
+        {
             "name": "Text",
-            "percent": 0.16,
+            "percent": 0.15,
             "color": "#d62728"
         },
         {
+            "name": "Other",
+            "percent": 0.12,
+            "color": "#9467bd"
+        },
+        {
+            "name": "CSV",
+            "percent": 0.07,
+            "color": "#237346"
+        },
+        {
             "name": "INI",
-            "percent": 0.05,
+            "percent": 0.06,
             "color": "#d1dbe0"
+        },
+        {
+            "name": "YAML",
+            "percent": 0.05,
+            "color": "#cb171e"
         },
         {
             "name": "Git",
             "percent": 0.02,
-            "color": "#9467bd"
+            "color": "#8c564b"
+        },
+        {
+            "name": "Batchfile",
+            "percent": 0.02,
+            "color": "#C1F12E"
         },
         {
             "name": "PHP",
@@ -101,14 +101,14 @@
             "color": "#4F5D95"
         },
         {
-            "name": "TeX",
-            "percent": 0.0,
-            "color": "#3D6117"
+            "name": "HTML",
+            "percent": 0.01,
+            "color": "#e34c26"
         },
         {
-            "name": "CSV",
+            "name": "XML",
             "percent": 0.0,
-            "color": "#237346"
+            "color": "#0060ac"
         }
     ]
 }
