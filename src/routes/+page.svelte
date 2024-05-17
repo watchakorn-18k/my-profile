@@ -13,7 +13,7 @@
 
 <div class="bg-base-200 flex flex-col gap-2 items-center text-white">
   <div
-    class="hero min-h-screen bg-gradient-to-b from-base-200 to-neutral from-[2rem] font-mono"
+    class="hero min-h-screen bg-gradient-to-b from-base-300 to-base-100 from-[2rem] hover:to-primary font-mono"
   >
     <div class="hero-content text-center">
       <div class="max-w-md">

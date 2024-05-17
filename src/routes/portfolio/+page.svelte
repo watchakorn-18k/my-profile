@@ -11,7 +11,7 @@
 >
   {#each portfolios as port (port.id)}
     <div
-      class="card w-11/12 xl:w-2/6 xl:h-[39rem] bg-base-100 border border-neutral hover:border-neutral-content ease-in-out transition-all duration-500 shadow-xl hover:bg-base-200"
+      class="card w-11/12 xl:w-2/6 xl:h-[49rem] bg-base-100 border border-neutral hover:border-neutral-content ease-in-out transition-all duration-500 shadow-xl hover:bg-base-200"
     >
       <div class="card-body">
         <h2 class="card-title xl:text-3xl my-2">{port.id + 1}.{port.name}</h2>
@@ -26,7 +26,9 @@
           <div class="flex gap-2 items-center justify-between w-full">
             <div class="flex gap-2 flex-wrap">
               {#each port.tag as tag}
-                <div class="badge badge-primary font-mono p-4 text-xs">
+                <div
+                  class="badge badge-primary font-mono p-4 text-xs w-2/3 text-center"
+                >
                   {tag}
                 </div>
               {/each}

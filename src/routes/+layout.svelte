@@ -15,6 +15,13 @@ shadow-sm font-mono
   <div class="flex-none hidden lg:flex">
     <ul class="menu menu-horizontal px-1">
       <li>
+        <a href="https://github.com/watchakorn-18k/" target="_blank">Github</a>
+      </li>
+    </ul>
+  </div>
+  <div class="flex-none hidden lg:flex">
+    <ul class="menu menu-horizontal px-1">
+      <li>
         <a href="https://watchakorn-18k.github.io/wk-docs/blog" target="_blank"
           >Blog</a
         >
@@ -32,16 +39,11 @@ shadow-sm font-mono
   </div>
   <div class="flex-none">
     <ul class="menu menu-horizontal px-1">
-      <li><a href="{base}/about">About</a></li>
-    </ul>
-  </div>
-  <div class="flex-none">
-    <ul class="menu menu-horizontal px-1">
       <li><a href="{base}/certificate">Certificate</a></li>
     </ul>
   </div>
   <div class="flex-none">
-    <ul class="menu menu-horizontal px-1">
+    <ul class="menu menu-horizontal">
       <li><a href="{base}/portfolio">Portfolio</a></li>
     </ul>
   </div>

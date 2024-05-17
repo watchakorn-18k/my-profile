@@ -17,7 +17,7 @@
         <h2 class="card-title xl:text-3xl my-2">{cert.id + 1}.{cert.name}</h2>
         <img
           class="rounded border border-neutral hover:filter hover:saturate-150 hover:shadow-base-100 shadow-xl ease-in-out transition-all duration-500 object-cover h-auto w-full"
-          src=https://raw.githubusercontent.com/watchakorn-18k/my-profile/master/static/certificate/{cert.image_url}
+          src="https://raw.githubusercontent.com/watchakorn-18k/my-profile/master/static/certificate/{cert.image_url}"
         />
       </div>
     </div>
