@@ -15,7 +15,7 @@ shadow-sm font-mono
   <div class="flex-none hidden lg:flex">
     <ul class="menu menu-horizontal px-1">
       <li>
-        <a href="/about">About</a>
+        <a href="{base}/about">About</a>
       </li>
     </ul>
     <ul class="menu menu-horizontal px-1">
