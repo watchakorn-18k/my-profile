@@ -9,12 +9,12 @@
 <div
   class="flex flex-wrap justify-center items-center gap-10 font-mono h-auto my-16"
 >
-  {#each portfolios as port (port.id)}
+  {#each portfolios as port, index}
     <div
       class="card w-11/12 xl:w-2/6 xl:h-[49rem] bg-base-100 border border-neutral hover:border-neutral-content ease-in-out transition-all duration-500 shadow-xl hover:bg-base-200"
     >
       <div class="card-body">
-        <h2 class="card-title xl:text-3xl my-2">{port.id + 1}.{port.name}</h2>
+        <h2 class="card-title xl:text-3xl my-2">{index + 1}.{port.name}</h2>
         <img
           class="rounded border border-neutral hover:filter hover:saturate-150 hover:shadow-base-100 shadow-xl ease-in-out transition-all duration-500 object-cover h-64 w-full"
           src={port.image}

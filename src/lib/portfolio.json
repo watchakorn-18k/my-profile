@@ -1,6 +1,5 @@
 [
     {
-        "id": 0,
         "name": "Generate Image AI Web",
         "desc": "Generate Image With Text with EdgeGPT reverse engineering with React and FastApi.",
         "image": "https://raw.githubusercontent.com/watchakorn-18k/my-profile/master/src/lib/assets/project/Generate_Image_AI_Web.png",
@@ -12,7 +11,6 @@
         ]
     },
     {
-        "id": 1,
         "name": "Language Translation App using AI",
         "desc": "Language Translation App using Al Real-time translation for Thai & English With Python using CHATGPT , BING CHAT and BARD . Easy-to-use interface.",
         "image": "https://raw.githubusercontent.com/watchakorn-18k/my-profile/master/src/lib/assets/project/Language_Translation_App_using_AI.png",
@@ -23,7 +21,33 @@
         ]
     },
     {
-        "id": 3,
+        "name": "easycrypt",
+        "desc": "🔐 EasyCrypt is a Go package that provides straightforward encryption and decryption functionality using AES encryption with a passphrase.",
+        "image": "https://raw.githubusercontent.com/watchakorn-18k/my-profile/master/src/lib/assets/project/easyen.png",
+        "url": "https://github.com/watchakorn-18k/easycrypt",
+        "tag": [
+            "go"
+        ]
+    },
+    {
+        "name": "go-fiber-supabase",
+        "desc": "A project integrating Golang's Fiber web framework with Supabase, an open-source Firebase alternative. This repository provides examples and tools to help developers quickly set up and build scalable applications using these technologies.",
+        "image": "https://raw.githubusercontent.com/watchakorn-18k/my-profile/master/src/lib/assets/project/go-fiber-supabase.png",
+        "url": "https://github.com/watchakorn-18k/go-fiber-supabase",
+        "tag": [
+            "go"
+        ]
+    },
+    {
+        "name": "scalar-go",
+        "desc": "A project integrating Golang's Fiber web framework with Supabase, an open-source Firebase alternative. This repository provides examples and tools to help developers quickly set up and build scalable applications using these technologies.",
+        "image": "https://github.com/watchakorn-18k/scalar-go/raw/main/_examples/image.png",
+        "url": "https://github.com/watchakorn-18k/scalar-go",
+        "tag": [
+            "go"
+        ]
+    },
+    {
         "name": "web-backend-supabase-fastapi",
         "desc": "Python web application offering functionalities through FastAPI, with Supabase handling the database needs.",
         "image": "https://raw.githubusercontent.com/watchakorn-18k/my-profile/master/src/lib/assets/project/web_fastapi_backend_supabase.png",
@@ -35,7 +59,6 @@
         ]
     },
     {
-        "id": 4,
         "name": "fastapi-firebase-auth",
         "desc": "About Authentication in FastAPI with Firebase Admin SDK",
         "image": "https://miro.medium.com/v2/resize:fit:720/format:webp/1*iIEAzSQ1_M_YL_s84UifYA.jpeg",
@@ -47,7 +70,6 @@
         ]
     },
     {
-        "id": 5,
         "name": "bot-news-it-discord",
         "desc": "Bot updates news about IT and programming with Update every hour",
         "image": "https://raw.githubusercontent.com/watchakorn-18k/my-profile/master/src/lib/assets/project/bot_discord.png",
@@ -58,7 +80,6 @@
         ]
     },
     {
-        "id": 6,
         "name": "VTT-2-SRT",
         "desc": "🚀 Fast VTT to SRT conv. No ads. Easy to use. TailwindCSS Styling. 📥",
         "image": "https://raw.githubusercontent.com/watchakorn-18k/my-profile/master/src/lib/assets/project/vtt_str.png",
@@ -68,7 +89,6 @@
         ]
     },
     {
-        "id": 7,
         "name": "python-editor-on-browser",
         "desc": "Can write python code on your website as well , Monaco-Editor and working with Pyodide.",
         "image": "https://raw.githubusercontent.com/watchakorn-18k/my-profile/master/src/lib/assets/project/python-editor-on-browser.png",
@@ -78,7 +98,6 @@
         ]
     },
     {
-        "id": 8,
         "name": "web_emc2",
         "desc": "Energy calculation web app ( e = mc2 )",
         "image": "https://raw.githubusercontent.com/watchakorn-18k/my-profile/master/src/lib/assets/project/web_emc.png",
@@ -89,7 +108,6 @@
         ]
     },
     {
-        "id": 9,
         "name": "Fenv",
         "desc": "⏩ Module for Generate a folder, establish a virtual environment with a single command.",
         "image": "https://camo.githubusercontent.com/4c821150de1050fd96c4309ec4dca0871a8b0d8f019e03c0184c928b8dce8439/68747470733a2f2f692e696d6775722e636f6d2f48374d555277332e676966",
@@ -99,7 +117,6 @@
         ]
     },
     {
-        "id": 10,
         "name": "flet-notion-with-python",
         "desc": "🔭 Notion-Flet API demo on Github",
         "image": "https://raw.githubusercontent.com/watchakorn-18k/my-profile/master/src/lib/assets/project/flet_notion.png",
@@ -111,7 +128,6 @@
         ]
     },
     {
-        "id": 11,
         "name": "viewpos",
         "desc": "🔭 Display images, show mouse positions, and pixel values.",
         "image": "https://raw.githubusercontent.com/watchakorn-18k/my-profile/master/src/lib/assets/project/viewpos.png",
@@ -122,7 +138,6 @@
         ]
     },
     {
-        "id": 12,
         "name": "number_guessing_game",
         "desc": "🤔Guess the number! 🤩Built with Python's flet library. 🤓Challenge yourself and have fun!",
         "image": "https://raw.githubusercontent.com/watchakorn-18k/my-profile/master/src/lib/assets/project/number_game.png",
@@ -133,7 +148,6 @@
         ]
     },
     {
-        "id": 13,
         "name": "Soccer Management System",
         "desc": "Soccer management system 🏆🥅📝 built with PHP, manage teams & players with ease, track your progress.",
         "image": "https://raw.githubusercontent.com/watchakorn-18k/my-profile/master/src/lib/assets/project/php_score.png",
@@ -145,7 +159,6 @@
         ]
     },
     {
-        "id": 14,
         "name": "Pure-Python-Non-Js-With-Pyscript",
         "desc": "Python scripts for 🤩 automation and 🤔 problem-solving. 🐍 No JS, just pure Python!",
         "image": "https://raw.githubusercontent.com/watchakorn-18k/my-profile/master/src/lib/assets/project/pure_python.png",
@@ -157,7 +170,6 @@
         ]
     },
     {
-        "id": 15,
         "name": "Adventurer-Packing-Game",
         "desc": "📦 เกมนักผจญบรรจุภัณฑ์ เกมแรกที่สร้างด้วย Unity 3D : My first 🎮 game created with 💻 Unity 3D. 🤩 Explore, create, and have fun! 🎉",
         "image": "https://github.com/watchakorn-18k/Adventurer-Packing-Game/raw/master/ScreenImage/alpha%204.0.png",
@@ -168,7 +180,6 @@
         ]
     },
     {
-        "id": 16,
         "name": "kivy-snippets",
         "desc": "Kivy snippets for VS Code Dev. 💻 Create apps faster with Kivy snippets. 🤩 Quickly insert code snippets & save time!",
         "image": "https://raw.githubusercontent.com/watchakorn-18k/my-profile/master/src/lib/assets/project/kivy.png",
@@ -179,7 +190,6 @@
         ]
     },
     {
-        "id": 17,
         "name": "NOBI-Random-Drink",
         "desc": "nobicha-sikhiu system random drink menu",
         "image": "https://raw.githubusercontent.com/watchakorn-18k/my-profile/master/src/lib/assets/project/nobi.png",
@@ -189,7 +199,6 @@
         ]
     },
     {
-        "id": 18,
         "name": "Random-FoodThai-DesktopAppication",
         "desc": "🍔 Random Food Thai Desktop Application created with tkinter and python dev wk-18k",
         "image": "https://raw.githubusercontent.com/watchakorn-18k/my-profile/master/src/lib/assets/project/random_food_thai.png",
@@ -200,7 +209,6 @@
         ]
     },
     {
-        "id": 19,
         "name": "ScanORC-from-VideoSubFinderWXW",
         "desc": "🔎 ORC Scanner: Scan documents with Google's OCR API. 🤖 Automate document processing & save time. 📄",
         "image": "https://raw.githubusercontent.com/watchakorn-18k/my-profile/master/src/lib/assets/project/scan_orc.png",
@@ -212,7 +220,6 @@
         ]
     },
     {
-        "id": 20,
         "name": "SubtitleYoutubeDownloader",
         "desc": "Download YouTube videos with subtitles easily using Python and Tkinter. 🐍📹💻",
         "image": "https://raw.githubusercontent.com/watchakorn-18k/my-profile/master/src/lib/assets/project/SubtitleYoutubeDownloader.png",
@@ -223,7 +230,6 @@
         ]
     },
     {
-        "id": 21,
         "name": "pyscript-for-education",
         "desc": "Pyscript to automate website tasks. 🤖🤓😎",
         "image": "https://raw.githubusercontent.com/watchakorn-18k/my-profile/master/src/lib/assets/project/pyscript.png",
@@ -233,7 +239,6 @@
         ]
     },
     {
-        "id": 22,
         "name": "Simple-App-from-Flet",
         "desc": "A Simple App built with Python and Flet. 🐍💻 Easy to use and customize. 🤗",
         "image": "https://raw.githubusercontent.com/watchakorn-18k/my-profile/master/src/lib/assets/project/simple_app.gif",

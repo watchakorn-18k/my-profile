@@ -15,6 +15,11 @@ shadow-sm font-mono
   <div class="flex-none hidden lg:flex">
     <ul class="menu menu-horizontal px-1">
       <li>
+        <a href="/about">About</a>
+      </li>
+    </ul>
+    <ul class="menu menu-horizontal px-1">
+      <li>
         <a href="https://github.com/watchakorn-18k/" target="_blank">Github</a>
       </li>
     </ul>

@@ -68,5 +68,10 @@
         "id": 13,
         "name": "BOTNOI TRAINEE 2024 Developer (Backend)",
         "image_url": "cert_14.png"
+    },
+    {
+        "id": 15,
+        "name": "Introduction to Programming with Python (Samsung)",
+        "image_url": "cert_15.png"
     }
 ]
