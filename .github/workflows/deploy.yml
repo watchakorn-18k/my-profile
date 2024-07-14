@@ -24,7 +24,7 @@ jobs:
           bun run build
 
       - name: Upload Artifacts
-        uses: actions/upload-pages-artifact@v2
+        uses: actions/upload-pages-artifact@v3
         with:
           # this should match the `pages` option in your adapter-static options
           path: 'build/'
@@ -36,12 +36,21 @@ jobs:
     permissions:
       pages: write
       id-token: write
+    
+
 
     environment:
       name: github-pages
       url:  ${{ steps.deployment.outputs.page_url || 'https://watchakorn-18k.github.io/my-profile' }}
 
     steps:
+      - name: Deploy to GitHub Pages
+        run: |
+          pwd
+          ls
+          
+        
+
       - name: Deploy
         id: deployment
         uses: actions/deploy-pages@v2
