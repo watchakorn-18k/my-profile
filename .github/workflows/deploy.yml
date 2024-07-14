@@ -1,4 +1,4 @@
-name: Deploy to GitHub Pages
+name: Deploy to GitHub Pages 🚀
 
 on:
   push:
@@ -8,30 +8,29 @@ jobs:
   build_web:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout ✅
         uses: actions/checkout@v4
 
-      - name: Install Bun
+      - name: Install Bun 🏗️
         uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
           
-      - name: Install dependencies
+      - name: Install dependencies 🏗️
         run: bun install
-
-      - name: build
-        env:
-          BASE_PATH: /${{ github.event.repository.name || '/watchakorn-18k' }}
-        run: |
-          bun run build
 
   upload_web:
     needs: build_web
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout ✅
         uses: actions/checkout@v4
-        
+
+      - name: build 📦
+        env:
+          BASE_PATH: /${{ github.event.repository.name || '/watchakorn-18k' }}
+        run: |
+          bun run build
       - name: Upload Artifacts
         uses: actions/upload-pages-artifact@v3
         with:
