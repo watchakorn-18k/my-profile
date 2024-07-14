@@ -23,6 +23,7 @@ jobs:
         run: |
           bun run build
   upload_web:
+    needs: install_setup
     runs-on: ubuntu-latest
     steps:
       - name: Upload Artifacts
