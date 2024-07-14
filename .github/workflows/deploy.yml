@@ -5,7 +5,7 @@ on:
     branches: 'master'
 
 jobs:
-  install_setup:
+  build_web:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -13,7 +13,7 @@ jobs:
 
       - name: Install Bun
         uses: oven-sh/setup-bun@v2
-        
+          
       - name: Install dependencies
         run: bun install
 
@@ -22,21 +22,15 @@ jobs:
           BASE_PATH: /${{ github.event.repository.name || '/watchakorn-18k' }}
         run: |
           bun run build
-  upload_web:
-    needs: install_setup
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
 
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-pages-artifact@v3
         with:
-          name: build-artifact
-          path: build/
+          # this should match the `pages` option in your adapter-static options
+          path: 'build/'
 
   deploy_web:
-    needs: upload_web
+    needs: build_web
     runs-on: ubuntu-latest
 
     permissions:
@@ -50,8 +44,7 @@ jobs:
     steps:
       - name: Deploy
         id: deployment
-        uses: actions/deploy-pages@v4
-        
+        uses: actions/deploy-pages@v2
   security:
     needs: deploy_web
     runs-on: ubuntu-latest
@@ -59,4 +52,4 @@ jobs:
       - name: Test for public javascript library vulnerabilities 
         uses: lirantal/is-website-vulnerable@main
         with:
-          scan-url: ${{ steps.deployment.outputs.page_url || 'https://watchakorn-18k.github.io/my-profile'  }}
+          scan-url: ${{ steps.deployment.outputs.page_url || 'https://watchakorn-18k.github.io/my-profile' }}
