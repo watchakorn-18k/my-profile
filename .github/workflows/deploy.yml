@@ -19,14 +19,13 @@ jobs:
 
       - name: Install Bun.js
         uses: oven-sh/setup-bun@v1
-      
           
       - name: Install dependencies
         run: bun install
 
       - name: build
         env:
-          BASE_PATH: '/${{ github.event.repository.name }}'
+          BASE_PATH: /${{ github.event.repository.name || '/watchakorn-18k' }}
         run: |
           bun run build
 
@@ -46,7 +45,7 @@ jobs:
 
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      url:  ${{ steps.deployment.outputs.page_url || 'https://watchakorn-18k.github.io/my-profile/portfolio' }}
 
     steps:
       - name: Deploy
