@@ -5,7 +5,7 @@ on:
     branches: 'master'
 
 jobs:
-  build_web:
+  install_setup:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -17,6 +17,10 @@ jobs:
       - name: Install dependencies
         run: bun install
 
+  build_web:
+    runs-on: ubuntu-latest
+    needs: install_setup
+    steps:
       - name: build
         env:
           BASE_PATH: /${{ github.event.repository.name || '/watchakorn-18k' }}
@@ -44,4 +48,13 @@ jobs:
     steps:
       - name: Deploy
         id: deployment
-        uses: actions/deploy-pages@v2
+        uses: actions/deploy-pages@v4
+        
+  security:
+    needs: deploy_web
+    runs-on: ubuntu-latest
+    steps:
+      - name: Test for public javascript library vulnerabilities 
+        uses: lirantal/is-website-vulnerable@main
+        with:
+          scan-url: ${{ steps.deployment.outputs.page_url || 'https://watchakorn-18k.github.io/my-profile' }}
