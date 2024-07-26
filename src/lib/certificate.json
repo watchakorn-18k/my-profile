@@ -88,5 +88,10 @@
         "id": 18,
         "name": "Computer programming skills in C language",
         "image_url": "cert_18.png"
+    },
+    {
+        "id": 19,
+        "name": "Object Oriented Programming with Java",
+        "image_url": "cert_19.png"
     }
 ]
