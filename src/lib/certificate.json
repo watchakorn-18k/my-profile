@@ -93,5 +93,10 @@
         "id": 19,
         "name": "Object Oriented Programming with Java",
         "image_url": "cert_19.png"
+    },
+    {
+        "id": 20,
+        "name": "DIGITAL LITERACY (NRRU)",
+        "image_url": "cert_20.png"
     }
 ]
