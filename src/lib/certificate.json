@@ -73,5 +73,20 @@
         "id": 15,
         "name": "Introduction to Programming with Python (Samsung)",
         "image_url": "cert_15.png"
+    },
+    {
+        "id": 16,
+        "name": "User Experience and User Interface Design",
+        "image_url": "cert_16.png"
+    },
+    {
+        "id": 17,
+        "name": "Sony Vegas | Digital Video Editing with Sony Vegas",
+        "image_url": "cert_17.png"
+    },
+    {
+        "id": 18,
+        "name": "Computer programming skills in C language",
+        "image_url": "cert_18.png"
     }
 ]
