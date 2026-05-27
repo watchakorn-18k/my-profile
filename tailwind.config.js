@@ -1,6 +1,7 @@
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ['./src/**/*.{html,js,svelte,ts}'],
+  darkMode: 'class',
   theme: {
     fontFamily: {
       sans: ['Geist', 'system-ui', 'sans-serif'],
@@ -9,12 +10,12 @@ export default {
     },
     extend: {
       colors: {
-        substrate: '#F4F4F0',
-        ink: '#0A0A0A',
-        muted: '#787774',
-        border: '#D4D4D0',
+        substrate: 'var(--color-substrate)',
+        ink: 'var(--color-ink)',
+        muted: 'var(--color-muted)',
+        border: 'var(--color-border)',
         accent: '#E61919',
-        surface: '#EAEAE6',
+        surface: 'var(--color-surface)',
       },
       letterSpacing: {
         tightest: '-0.06em',

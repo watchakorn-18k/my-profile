@@ -2,6 +2,12 @@
   import "../app.css";
   import { base } from "$app/paths";
   import { page } from "$app/stores";
+  import { theme } from "$lib/theme";
+  import { onMount } from "svelte";
+
+  onMount(() => {
+    theme.init();
+  });
 
   const navLinks = [
     { href: "/", label: "INDEX" },
@@ -50,6 +56,14 @@
               {link.label} ↗
             </a>
           {/each}
+          <span class="mx-3 text-border">|</span>
+          <button
+            class="theme-toggle"
+            on:click={() => theme.toggle()}
+            aria-label="Toggle theme"
+          >
+            {$theme === 'light' ? 'DK' : $theme === 'dark' ? 'SYS' : 'LT'}
+          </button>
         </div>
 
         <div class="md:hidden flex items-center gap-1">
@@ -66,6 +80,13 @@
               {link.label}
             </a>
           {/each}
+          <button
+            class="theme-toggle"
+            on:click={() => theme.toggle()}
+            aria-label="Toggle theme"
+          >
+            {$theme === 'light' ? 'DK' : $theme === 'dark' ? 'SYS' : 'LT'}
+          </button>
         </div>
       </div>
     </div>

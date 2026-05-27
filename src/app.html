@@ -2,6 +2,17 @@
 <html lang="en">
 
 <head>
+	<meta name="theme-color" content="#F4F4F0" />
+	<script>
+		(function() {
+			var t = localStorage.getItem('theme') || 'system';
+			var dark = t === 'dark' || (t === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+			if (dark) {
+				document.documentElement.classList.add('dark');
+				document.querySelector('meta[name="theme-color"]').content = '#0A0A0A';
+			}
+		})();
+	</script>
 	<meta charset="utf-8" />
 	<link rel="icon" href="%sveltekit.assets%/wk-18k.png" />
 	<title>Watchakorn Buddeewong - Software Developer</title>
