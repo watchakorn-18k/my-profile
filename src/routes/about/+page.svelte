@@ -1,21 +1,14 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { fetchData } from "$lib/waketime";
+  import gsap from "gsap";
+  import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+  gsap.registerPlugin(ScrollTrigger);
 
   let waketimes: any[] = [];
   let maxPercentData: number = 0;
-  let visible = false;
-
-  onMount(async () => {
-    visible = true;
-    try {
-      const resp = await fetchData();
-      waketimes = resp.data;
-      maxPercentData = waketimes[0]?.percent ?? 0;
-    } catch (error) {
-      console.error("Error in fetchData:", error);
-    }
-  });
+  let container: HTMLElement;
 
   const experience = [
     {
@@ -73,31 +66,114 @@
     linkedin: "https://www.linkedin.com/in/watchakorn/",
     email: "wk18k@proton.me",
   };
+
+  onMount(async () => {
+    try {
+      const resp = await fetchData();
+      waketimes = resp.data;
+      maxPercentData = waketimes[0]?.percent ?? 0;
+    } catch (error) {
+      console.error("Error in fetchData:", error);
+    }
+
+    const ctx = gsap.context(() => {
+      const heroTl = gsap.timeline({ defaults: { duration: 0.7, ease: "power3.out" } });
+      heroTl
+        .from(".about-tag", { y: 30, autoAlpha: 0 })
+        .from(".about-name", { y: 50, autoAlpha: 0, duration: 0.8 }, "-=0.4")
+        .from(".about-desc", { y: 30, autoAlpha: 0 }, "-=0.4")
+        .from(".about-links a", { y: 15, autoAlpha: 0, stagger: 0.08 }, "-=0.3")
+        .from(".quick-ref", { x: 40, autoAlpha: 0, duration: 0.6 }, "-=0.6");
+
+      gsap.from(".skills-tag", {
+        scrollTrigger: { trigger: ".skills-section", start: "top 80%", once: true },
+        y: 30, autoAlpha: 0, duration: 0.6, ease: "power2.out",
+      });
+
+      ScrollTrigger.batch(".skill-group", {
+        onEnter: (elements) => {
+          gsap.from(elements, { y: 40, autoAlpha: 0, duration: 0.5, stagger: 0.06, ease: "power2.out" });
+        },
+        start: "top 85%",
+        once: true,
+      });
+
+      gsap.from(".exp-tag", {
+        scrollTrigger: { trigger: ".exp-section", start: "top 80%", once: true },
+        y: 30, autoAlpha: 0, duration: 0.6, ease: "power2.out",
+      });
+
+      gsap.utils.toArray<HTMLElement>(".exp-block").forEach((el, i) => {
+        gsap.from(el, {
+          scrollTrigger: { trigger: el, start: "top 80%", once: true },
+          y: 50, autoAlpha: 0, duration: 0.7, delay: i * 0.15, ease: "power3.out",
+        });
+      });
+
+      gsap.utils.toArray<HTMLElement>(".exp-highlight").forEach((el) => {
+        gsap.from(el, {
+          scrollTrigger: { trigger: el, start: "top 90%", once: true },
+          x: -20, autoAlpha: 0, duration: 0.4, ease: "power2.out",
+        });
+      });
+
+      gsap.utils.toArray<HTMLElement>(".accent-line-anim").forEach((el) => {
+        gsap.from(el, {
+          scrollTrigger: { trigger: el, start: "top 85%", once: true },
+          scaleX: 0, transformOrigin: "left center", duration: 0.6, ease: "power2.out",
+        });
+      });
+
+      gsap.utils.toArray<HTMLElement>(".section-border-anim").forEach((el) => {
+        gsap.from(el, {
+          scrollTrigger: { trigger: el, start: "top 90%", once: true },
+          scaleX: 0, transformOrigin: "left center", duration: 0.8, ease: "power2.inOut",
+        });
+      });
+
+      if (waketimes.length > 0) {
+        gsap.from(".waka-tag", {
+          scrollTrigger: { trigger: ".waka-section", start: "top 80%", once: true },
+          y: 30, autoAlpha: 0, duration: 0.6, ease: "power2.out",
+        });
+
+        ScrollTrigger.batch(".waka-bar", {
+          onEnter: (elements) => {
+            gsap.from(elements, { x: -30, autoAlpha: 0, duration: 0.5, stagger: 0.05, ease: "power2.out" });
+          },
+          start: "top 90%",
+          once: true,
+        });
+      }
+    }, container);
+
+    return () => ctx.revert();
+  });
 </script>
 
-<section class="max-w-content mx-auto px-4 md:px-8">
+<section bind:this={container} class="max-w-content mx-auto px-4 md:px-8">
   <div class="py-16 md:py-24">
-    <div class="tag-bracket mb-6 fade-up">[ ABOUT // PROFILE ]</div>
+    <div class="about-tag tag-bracket mb-6" style="visibility:hidden;">[ ABOUT // PROFILE ]</div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-12 lg:gap-16 fade-up fade-up-delay-1">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-12 lg:gap-16">
       <div class="lg:col-span-2">
-        <h1 class="heading-display text-3xl md:text-5xl mb-6">
+        <h1 class="about-name heading-display text-3xl md:text-5xl mb-6" style="visibility:hidden;">
           WATCHAKORN<br />BUDDEEWONG
         </h1>
-        <div class="accent-line mb-6" />
-        <p class="text-muted text-sm leading-relaxed max-w-lg mb-6">
+        <div class="accent-line-anim accent-line mb-6" />
+        <p class="about-desc text-muted text-sm leading-relaxed max-w-lg mb-6" style="visibility:hidden;">
           Full stack software developer based in Thailand. Building scalable backend services,
           mobile applications, and web platforms. Experienced in leading small teams, designing
           system architecture, and shipping products from concept to production.
         </p>
-        <div class="flex flex-wrap gap-3">
-          <a href="mailto:{links.email}" class="btn-primary">EMAIL ↗</a>
-          <a href={links.github} target="_blank" rel="noopener noreferrer" class="btn-outline">GITHUB ↗</a>
-          <a href={links.linkedin} target="_blank" rel="noopener noreferrer" class="btn-outline">LINKEDIN ↗</a>
+        <div class="about-links flex flex-wrap gap-3">
+          <a href="mailto:{links.email}" class="btn-primary" style="visibility:hidden;">EMAIL ↗</a>
+          <a href={links.github} target="_blank" rel="noopener noreferrer" class="btn-outline" style="visibility:hidden;">GITHUB ↗</a>
+          <a href={links.linkedin} target="_blank" rel="noopener noreferrer" class="btn-outline" style="visibility:hidden;">LINKEDIN ↗</a>
         </div>
       </div>
 
-      <div class="border border-border p-6">
+      <div class="quick-ref border border-border p-6" style="visibility:hidden;">
         <div class="tag-bracket mb-4">[ QUICK REF ]</div>
         <div class="space-y-3 text-xs">
           <div class="flex justify-between border-b border-border pb-2">
@@ -125,13 +201,13 @@
     </div>
   </div>
 
-  <div class="section-border" />
+  <div class="section-border-anim section-border" />
 
-  <div class="py-16 md:py-24">
-    <div class="tag-bracket mb-8 fade-up">[ TECHNICAL SKILLS ]</div>
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-0 fade-up fade-up-delay-1">
-      {#each skillGroups as group, i}
-        <div class="card-industrial p-5" style="animation-delay: {i * 0.05}s">
+  <div class="skills-section py-16 md:py-24">
+    <div class="skills-tag tag-bracket mb-8" style="visibility:hidden;">[ TECHNICAL SKILLS ]</div>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-0">
+      {#each skillGroups as group}
+        <div class="skill-group card-industrial p-5" style="visibility:hidden;">
           <div class="text-accent text-[10px] font-bold tracking-widest mb-3">
             {group.label}
           </div>
@@ -147,13 +223,13 @@
     </div>
   </div>
 
-  <div class="section-border" />
+  <div class="section-border-anim section-border" />
 
-  <div class="py-16 md:py-24">
-    <div class="tag-bracket mb-8 fade-up">[ EXPERIENCE ]</div>
+  <div class="exp-section py-16 md:py-24">
+    <div class="exp-tag tag-bracket mb-8" style="visibility:hidden;">[ EXPERIENCE ]</div>
 
     {#each experience as exp, i}
-      <div class="mb-16 last:mb-0 fade-up" style="animation-delay: {i * 0.15}s">
+      <div class="exp-block mb-16 last:mb-0" style="visibility:hidden;">
         <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 lg:gap-12">
           <div class="lg:col-span-1">
             <div class="text-accent text-[10px] font-bold tracking-widest mb-2">
@@ -167,11 +243,11 @@
             <h3 class="heading-display text-xl md:text-2xl mb-4">
               {exp.company}
             </h3>
-            <div class="accent-line mb-6" />
+            <div class="accent-line-anim accent-line mb-6" />
 
             <ul class="space-y-2 mb-6">
               {#each exp.highlights as highlight}
-                <li class="text-muted text-xs leading-relaxed flex gap-2">
+                <li class="exp-highlight text-muted text-xs leading-relaxed flex gap-2" style="visibility:hidden;">
                   <span class="text-accent mt-0.5 shrink-0">///</span>
                   <span>{highlight}</span>
                 </li>
@@ -196,15 +272,15 @@
   </div>
 
   {#if waketimes.length > 0}
-    <div class="section-border" />
+    <div class="section-border-anim section-border" />
 
-    <div class="py-16 md:py-24">
-      <div class="tag-bracket mb-8 fade-up">[ CODING ACTIVITY // LAST 30 DAYS ]</div>
+    <div class="waka-section py-16 md:py-24">
+      <div class="waka-tag tag-bracket mb-8" style="visibility:hidden;">[ CODING ACTIVITY // LAST 30 DAYS ]</div>
 
-      <div class="space-y-2 fade-up fade-up-delay-1">
+      <div class="space-y-2">
         {#each waketimes as wt}
           {#if wt.percent > 0}
-            <div class="grid grid-cols-12 gap-3 items-center text-xs">
+            <div class="waka-bar grid grid-cols-12 gap-3 items-center text-xs" style="visibility:hidden;">
               <div class="col-span-2 md:col-span-1 text-right text-muted truncate">
                 {wt.name}
               </div>

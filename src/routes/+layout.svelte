@@ -100,7 +100,7 @@
     <div class="max-w-content mx-auto px-4 md:px-8 py-6">
       <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div class="tag-bracket">
-          [ WATCHAKORN BUDDEEWONG // SOFTWARE DEVELOPER // 2025 ]
+          [ WATCHAKORN BUDDEEWONG // SOFTWARE DEVELOPER // 2026 ]
         </div>
         <div class="flex gap-6">
           <a href="mailto:wk18k@proton.me" class="tag-bracket hover:text-ink transition-colors">
