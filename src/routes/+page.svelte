@@ -23,7 +23,7 @@
     { category: "BACKEND", items: "Golang, Echo, Fiber, FastAPI, Django" },
     { category: "FRONTEND", items: "Flutter, Vue, Nuxt, Svelte, React" },
     { category: "DATA", items: "PostgreSQL, MongoDB, Redis, MySQL" },
-    { category: "INFRA", items: "Docker, Podman, Jenkins, GitHub Actions" },
+    { category: "DEVOPS / CLOUD", items: "Docker, Jenkins, AWS S3, GCP, Cloudflare, GitHub Actions" },
   ];
 
   const careerStartYear = 2024;
@@ -40,8 +40,82 @@
     { layer: "MOBILE", signal: "Flutter + Dart production apps", status: "APP STORE READY" },
     { layer: "WEB", signal: "Vue / Nuxt / Svelte interfaces", status: "PIXEL PUSHED" },
     { layer: "API", signal: "Golang services with Echo/Fiber", status: "LATENCY HUNTED" },
-    { layer: "SHIP", signal: "Docker + CI/CD + cloud storage", status: "DEPLOY SURVIVED" },
+    { layer: "OPS", signal: "Docker + Jenkins + AWS S3 + GCP + Cloudflare", status: "DEPLOY SURVIVED" },
   ];
+
+  const demoModes = [
+    { id: "mobile", label: "MOBILE APP", title: "Flutter pocket flow", note: "Tap through feed, order, and chat states like a production mobile client." },
+    { id: "web", label: "WEB FRONTEND", title: "Vue ops dashboard", note: "Switch interface state and watch dashboard rows react." },
+    { id: "api", label: "BACKEND / API", title: "Golang service route", note: "Fire a request from client to gateway to Go service to database." },
+    { id: "devops", label: "DEVOPS GAME", title: "Deploy pipeline run", note: "Trigger a release through Docker, Jenkins, AWS S3, GCP, and Cloudflare." },
+    { id: "redis", label: "REDIS GAME", title: "Cache and queue control", note: "Click cache lookup or push messages to see Redis speed up reads and buffer jobs." },
+  ] as const;
+
+  type DemoMode = typeof demoModes[number]["id"];
+  type ApiStatus = "idle" | "sending" | "done";
+  type DevOpsStatus = "idle" | "building" | "deployed";
+  type RedisMode = "cache" | "queue";
+
+  const devOpsSteps = ["DOCKER", "JENKINS", "AWS S3", "GCP", "CLOUDFLARE"];
+
+  let activeDemo: DemoMode = "mobile";
+  let demoPulse = 0;
+  let apiStatus: ApiStatus = "idle";
+  let devOpsStatus: DevOpsStatus = "idle";
+  let redisMode: RedisMode = "cache";
+  let redisCacheWarm = false;
+  let redisQueueDepth = 0;
+  let apiTimeout: ReturnType<typeof setTimeout>;
+  let devOpsTimeout: ReturnType<typeof setTimeout>;
+
+  $: activeDemoMeta = demoModes.find((mode) => mode.id === activeDemo) ?? demoModes[0];
+  $: highlightedRow = demoPulse % 3;
+  $: devOpsProgress = activeDemo === "devops" ? demoPulse % (devOpsSteps.length + 1) : 0;
+  $: redisLatency = redisCacheWarm ? "12ms" : "240ms";
+  $: redisStatus = redisMode === "cache" ? (redisCacheWarm ? "cache hit" : "cache miss") : `${redisQueueDepth} queued`;
+
+  const resetTimedDemos = () => {
+    clearTimeout(apiTimeout);
+    clearTimeout(devOpsTimeout);
+    apiStatus = "idle";
+    devOpsStatus = "idle";
+  };
+
+  const playRedis = (mode: RedisMode) => {
+    activeDemo = "redis";
+    demoPulse += 1;
+    resetTimedDemos();
+    redisMode = mode;
+
+    if (mode === "cache") {
+      redisCacheWarm = !redisCacheWarm;
+      return;
+    }
+
+    redisQueueDepth = (redisQueueDepth + 1) % 6;
+  };
+
+  const playDemo = (id: DemoMode) => {
+    activeDemo = id;
+    demoPulse += 1;
+    resetTimedDemos();
+
+    if (id === "api") {
+      apiStatus = "sending";
+      apiTimeout = setTimeout(() => {
+        apiStatus = "done";
+      }, 650);
+      return;
+    }
+
+    if (id === "devops") {
+      devOpsStatus = "building";
+      devOpsTimeout = setTimeout(() => {
+        devOpsStatus = "deployed";
+      }, 750);
+      return;
+    }
+  };
 
   onMount(() => {
     const ctx = gsap.context(() => {
@@ -64,6 +138,32 @@
             autoAlpha: 0,
             duration: 0.6,
             stagger: 0.1,
+            ease: "power2.out",
+          });
+        },
+        start: "top 85%",
+        once: true,
+      });
+
+      gsap.from(".mini-demo-title", {
+        scrollTrigger: {
+          trigger: ".mini-demo-section",
+          start: "top 80%",
+          once: true,
+        },
+        y: 30,
+        autoAlpha: 0,
+        duration: 0.6,
+        ease: "power2.out",
+      });
+
+      ScrollTrigger.batch(".mini-demo-control, .mini-demo-panel", {
+        onEnter: (elements) => {
+          gsap.from(elements, {
+            y: 40,
+            autoAlpha: 0,
+            duration: 0.55,
+            stagger: 0.08,
             ease: "power2.out",
           });
         },
@@ -226,6 +326,204 @@
       </div>
     {/each}
   </div>
+
+  <div class="mini-demo-section py-16 md:py-24">
+    <div class="mini-demo-title mb-8" style="visibility:hidden;">
+      <div class="tag-bracket mb-4">[ INTERACTIVE MINI LAB ]</div>
+      <div class="grid grid-cols-1 lg:grid-cols-[0.7fr_1.3fr] gap-6 lg:gap-12">
+        <h2 class="heading-display text-2xl md:text-4xl">
+          CLICKABLE<br />FULL-STACK PROOF
+        </h2>
+        <p class="text-muted text-xs leading-relaxed max-w-2xl">
+          Three tiny interfaces showing how mobile clients, web dashboards, and backend services fit together.
+          No external API here — just a fast local simulation of product thinking from screen to server.
+        </p>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-[0.8fr_1.2fr] border border-border">
+      <div class="mini-demo-control p-5 md:p-6 lg:border-r border-border bg-substrate" style="visibility:hidden;">
+        <div class="tag-bracket mb-4">[ SELECT PROGRAM ]</div>
+        <div class="grid grid-cols-1 gap-2 mb-6">
+          {#each demoModes as mode}
+            <button
+              type="button"
+              class="text-left border border-border px-4 py-3 text-[10px] font-bold uppercase tracking-widest transition-colors {activeDemo === mode.id ? 'bg-accent text-white border-accent' : 'text-muted hover:text-ink hover:border-ink'}"
+              aria-pressed={activeDemo === mode.id}
+              on:click={() => playDemo(mode.id)}
+            >
+              {mode.label}
+            </button>
+          {/each}
+        </div>
+
+        <div class="border-t border-border pt-4 space-y-3">
+          <div>
+            <div class="tag-bracket mb-1">[ ACTIVE ]</div>
+            <div class="text-sm font-bold uppercase tracking-wider">{activeDemoMeta.title}</div>
+          </div>
+          <p class="text-xs text-muted leading-relaxed">{activeDemoMeta.note}</p>
+          <div class="grid grid-cols-2 gap-0 border border-border text-[10px] uppercase tracking-widest">
+            <div class="p-3 border-r border-border">
+              <div class="text-muted">EVENTS</div>
+              <div class="text-accent font-bold mt-1">#{demoPulse}</div>
+            </div>
+            <div class="p-3">
+              <div class="text-muted">STATUS</div>
+              <div class="text-accent font-bold mt-1">{activeDemo === 'api' ? apiStatus : activeDemo === 'devops' ? devOpsStatus : activeDemo === 'redis' ? redisStatus : 'ready'}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mini-demo-panel p-5 md:p-6 bg-card" style="visibility:hidden;">
+        {#key activeDemo + demoPulse}
+          {#if activeDemo === 'mobile'}
+            <div class="grid grid-cols-1 md:grid-cols-[220px_1fr] gap-6 items-center">
+              <div class="border-2 border-ink p-3 bg-substrate max-w-[240px] mx-auto w-full">
+                <div class="h-5 border-b border-border mb-3 flex items-center justify-between text-[9px] text-muted">
+                  <span>09:{(demoPulse % 60).toString().padStart(2, '0')}</span>
+                  <span>FLUTTER</span>
+                </div>
+                <div class="space-y-3">
+                  {#each ['FEED SYNC', 'POS ORDER', 'LIVE CHAT'] as card, i}
+                    <button
+                      type="button"
+                      class="w-full text-left border border-border p-3 transition-colors {highlightedRow === i ? 'bg-accent text-white border-accent' : 'bg-card text-ink'}"
+                      on:click={() => playDemo('mobile')}
+                    >
+                      <div class="text-[10px] font-bold tracking-widest">{card}</div>
+                      <div class="text-[9px] uppercase tracking-widest mt-2 opacity-75">SYNC #{demoPulse + i}</div>
+                    </button>
+                  {/each}
+                </div>
+              </div>
+              <div>
+                <div class="tag-bracket mb-3">[ MOBILE OUTPUT ]</div>
+                <div class="heading-display text-2xl md:text-4xl text-accent mb-4">CLIENT STATE</div>
+                <p class="text-xs text-muted leading-relaxed">
+                  Tap phone cards. UI state updates like a Flutter app handling feed, POS, and chat flows.
+                </p>
+              </div>
+            </div>
+          {:else if activeDemo === 'web'}
+            <div class="border border-border bg-substrate">
+              <div class="flex items-center justify-between border-b border-border px-4 py-3">
+                <div class="tag-bracket">[ VUE OPS DASHBOARD ]</div>
+                <button type="button" class="text-accent text-[10px] font-bold tracking-widest" on:click={() => playDemo('web')}>REFRESH ↗</button>
+              </div>
+              <div class="grid grid-cols-3 border-b border-border text-center text-[10px] uppercase tracking-widest">
+                {#each ['ORDERS', 'USERS', 'LATENCY'] as metric, i}
+                  <div class="p-4 {i < 2 ? 'border-r border-border' : ''}">
+                    <div class="text-muted">{metric}</div>
+                    <div class="heading-display text-xl text-accent mt-2">{i === highlightedRow ? 'LIVE' : 'OK'}</div>
+                  </div>
+                {/each}
+              </div>
+              <div class="p-4 space-y-2">
+                {#each ['render product table', 'hydrate dashboard state', 'ship responsive layout'] as row, i}
+                  <div class="grid grid-cols-[32px_1fr_72px] gap-3 border border-border p-3 text-[10px] uppercase tracking-widest {highlightedRow === i ? 'bg-accent text-white border-accent' : 'bg-card'}">
+                    <span>0{i + 1}</span>
+                    <span>{row}</span>
+                    <span class="text-right">{highlightedRow === i ? 'ACTIVE' : 'IDLE'}</span>
+                  </div>
+                {/each}
+              </div>
+            </div>
+          {:else if activeDemo === 'api'}
+            <div>
+              <div class="flex items-center justify-between mb-5">
+                <div class="tag-bracket">[ API ROUTE SIMULATOR ]</div>
+                <button type="button" class="btn-primary" on:click={() => playDemo('api')}>SEND REQUEST</button>
+              </div>
+              <svg viewBox="0 0 720 180" class="w-full border border-border bg-substrate" role="img" aria-label="Client to gateway to Go service to Postgres route">
+                <line x1="110" y1="90" x2="610" y2="90" stroke="currentColor" stroke-width="2" class="{apiStatus === 'idle' ? 'text-border' : 'text-accent'}" stroke-dasharray={apiStatus === 'sending' ? '12 10' : '0'} />
+                {#each ['CLIENT', 'GATEWAY', 'GO SERVICE', 'POSTGRES'] as node, i}
+                  <g transform="translate({80 + i * 180} 55)">
+                    <rect width="100" height="70" fill="none" stroke="currentColor" stroke-width="2" class="{apiStatus === 'done' || (apiStatus === 'sending' && i < 3) ? 'text-accent' : 'text-ink'}" />
+                    <text x="50" y="42" text-anchor="middle" class="fill-current text-[10px] font-bold tracking-widest">{node}</text>
+                  </g>
+                {/each}
+              </svg>
+              <div class="grid grid-cols-3 gap-0 border-x border-b border-border text-[10px] uppercase tracking-widest">
+                <div class="p-3 border-r border-border text-muted">METHOD: POST</div>
+                <div class="p-3 border-r border-border text-muted">RUNTIME: GOLANG</div>
+                <div class="p-3 text-accent font-bold">{apiStatus === 'done' ? '200 OK' : apiStatus === 'sending' ? 'PENDING' : 'READY'}</div>
+              </div>
+            </div>
+          {:else if activeDemo === 'devops'}
+            <div>
+              <div class="flex items-center justify-between mb-5 gap-4">
+                <div class="tag-bracket">[ DEVOPS DEPLOY GAME ]</div>
+                <button type="button" class="btn-primary" on:click={() => playDemo('devops')}>RUN DEPLOY</button>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-5 gap-0 border border-border bg-substrate">
+                {#each devOpsSteps as step, i}
+                  <div class="p-4 border-b md:border-b-0 md:border-r border-border last:border-r-0 {i <= devOpsProgress ? 'bg-accent text-white' : 'bg-card text-ink'}">
+                    <div class="text-[10px] font-bold uppercase tracking-widest mb-8">0{i + 1}</div>
+                    <div class="heading-display text-lg md:text-xl break-words">{step}</div>
+                    <div class="text-[9px] uppercase tracking-widest mt-3 opacity-75">
+                      {i < devOpsProgress ? 'PASSED' : i === devOpsProgress ? 'ACTIVE' : 'WAITING'}
+                    </div>
+                  </div>
+                {/each}
+              </div>
+              <div class="grid grid-cols-2 md:grid-cols-4 gap-0 border-x border-b border-border text-[10px] uppercase tracking-widest">
+                <div class="p-3 border-r border-border text-muted">IMAGE: DOCKER</div>
+                <div class="p-3 border-r border-border text-muted">PIPELINE: JENKINS</div>
+                <div class="p-3 border-r border-border text-muted">STORAGE: AWS S3 / GCP</div>
+                <div class="p-3 text-accent font-bold">{devOpsStatus === 'deployed' ? 'EDGE LIVE' : devOpsStatus === 'building' ? 'BUILDING' : 'READY'}</div>
+              </div>
+            </div>
+          {:else}
+            <div>
+              <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-5">
+                <div>
+                  <div class="tag-bracket mb-2">[ REDIS CACHE / QUEUE GAME ]</div>
+                  <div class="text-xs text-muted uppercase tracking-widest">MODE: {redisMode} // LATENCY: {redisLatency}</div>
+                </div>
+                <div class="flex gap-2">
+                  <button type="button" class="btn-outline" on:click={() => playRedis('cache')}>CACHE LOOKUP</button>
+                  <button type="button" class="btn-primary" on:click={() => playRedis('queue')}>PUSH JOB</button>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-[1fr_160px_1fr] gap-0 border border-border bg-substrate">
+                <div class="p-5 border-b md:border-b-0 md:border-r border-border">
+                  <div class="tag-bracket mb-3">[ API READ ]</div>
+                  <div class="heading-display text-2xl mb-3">GET /FEED</div>
+                  <div class="text-xs text-muted leading-relaxed">Request checks Redis before touching database.</div>
+                </div>
+                <div class="p-5 border-b md:border-b-0 md:border-r border-border {redisCacheWarm || redisQueueDepth > 0 ? 'bg-accent text-white' : 'bg-card text-ink'}">
+                  <div class="tag-bracket mb-3 {redisCacheWarm || redisQueueDepth > 0 ? 'text-white' : ''}">[ REDIS ]</div>
+                  <div class="heading-display text-3xl mb-3">{redisMode === 'cache' ? (redisCacheWarm ? 'HIT' : 'MISS') : redisQueueDepth}</div>
+                  <div class="text-[10px] uppercase tracking-widest opacity-75">{redisMode === 'cache' ? 'CACHE STATE' : 'QUEUE DEPTH'}</div>
+                </div>
+                <div class="p-5">
+                  <div class="tag-bracket mb-3">[ WORKER / DB ]</div>
+                  <div class="space-y-2">
+                    {#each ['email job', 'notification job', 'feed rebuild', 'media task'] as job, i}
+                      <div class="border border-border p-2 text-[10px] uppercase tracking-widest {redisMode === 'queue' && i < redisQueueDepth ? 'bg-accent text-white border-accent' : 'bg-card text-muted'}">
+                        {i < redisQueueDepth ? 'QUEUED' : 'IDLE'} // {job}
+                      </div>
+                    {/each}
+                  </div>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-3 gap-0 border-x border-b border-border text-[10px] uppercase tracking-widest">
+                <div class="p-3 border-r border-border text-muted">CACHE: {redisCacheWarm ? 'WARM' : 'COLD'}</div>
+                <div class="p-3 border-r border-border text-muted">QUEUE: {redisQueueDepth} MSG</div>
+                <div class="p-3 text-accent font-bold">{redisMode === 'cache' ? (redisCacheWarm ? 'FAST PATH' : 'DB FALLBACK') : 'WORKER BUFFER'}</div>
+              </div>
+            </div>
+          {/if}
+        {/key}
+      </div>
+    </div>
+  </div>
+
+  <div class="section-border-anim section-border" />
 
   <div class="skills-section py-16 md:py-24">
     <div class="skills-title tag-bracket mb-8" style="visibility:hidden;">[ TECHNICAL STACK ]</div>
