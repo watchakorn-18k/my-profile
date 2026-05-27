@@ -13,6 +13,7 @@
     { href: "/", label: "INDEX" },
     { href: "/about", label: "ABOUT" },
     { href: "/portfolio", label: "WORK" },
+    { href: "/repositories", label: "REPOS" },
     { href: "/certificate", label: "CERT" },
   ];
 
@@ -21,6 +22,8 @@
     { href: "https://www.linkedin.com/in/watchakorn/", label: "LI" },
     { href: "https://watchakorn-18k.github.io/wk-docs/blog", label: "BLOG" },
   ];
+
+  const currentYear = new Date().getFullYear();
 </script>
 
 <div class="noise-overlay min-h-screen flex flex-col">
@@ -100,7 +103,7 @@
     <div class="max-w-content mx-auto px-4 md:px-8 py-6">
       <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div class="tag-bracket">
-          [ WATCHAKORN BUDDEEWONG // SOFTWARE DEVELOPER // 2026 ]
+          [ WATCHAKORN BUDDEEWONG // SOFTWARE DEVELOPER // {currentYear} ]
         </div>
         <div class="flex gap-6">
           <a href="mailto:wk18k@proton.me" class="tag-bracket hover:text-ink transition-colors">

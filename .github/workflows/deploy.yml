@@ -22,6 +22,7 @@ jobs:
       - name: build 📦
         env:
           BASE_PATH: /${{ github.event.repository.name || '/watchakorn-18k' }}
+          GITHUB_TOKEN: ${{ github.token }}
         run: |
           bun run build
 
