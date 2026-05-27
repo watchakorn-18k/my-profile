@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from "svelte";
+  import { onMount, tick } from "svelte";
   import { fetchData } from "$lib/waketime";
   import gsap from "gsap";
   import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -67,16 +67,28 @@
     email: "wk18k@proton.me",
   };
 
-  onMount(async () => {
-    try {
-      const resp = await fetchData();
-      waketimes = resp.data;
-      maxPercentData = waketimes[0]?.percent ?? 0;
-    } catch (error) {
-      console.error("Error in fetchData:", error);
-    }
+  onMount(() => {
+    fetchData()
+      .then(async (resp) => {
+        waketimes = resp.data;
+        maxPercentData = waketimes[0]?.percent ?? 0;
+        await tick();
+        gsap.to(".waka-fill", {
+          width: (_, target: HTMLElement) => `${target.dataset.percent}%`,
+          duration: 1,
+          stagger: 0.08,
+          ease: "power2.out",
+          scrollTrigger: { trigger: ".waka-section", start: "top 80%", once: true },
+        });
+        ScrollTrigger.refresh();
+      })
+      .catch((error) => {
+        console.error("Error in fetchData:", error);
+      });
 
     const ctx = gsap.context(() => {
+      gsap.set(".skill-group, .waka-bar", { autoAlpha: 0 });
+
       const heroTl = gsap.timeline({ defaults: { duration: 0.7, ease: "power3.out" } });
       heroTl
         .from(".about-tag", { y: 30, autoAlpha: 0 })
@@ -92,11 +104,13 @@
 
       ScrollTrigger.batch(".skill-group", {
         onEnter: (elements) => {
-          gsap.from(elements, { y: 40, autoAlpha: 0, duration: 0.5, stagger: 0.06, ease: "power2.out" });
+          gsap.to(elements, { y: 0, autoAlpha: 1, duration: 0.5, stagger: 0.06, ease: "power2.out" });
         },
-        start: "top 85%",
+        start: "top 90%",
         once: true,
       });
+
+      gsap.set(".skill-group", { y: 40 });
 
       gsap.from(".exp-tag", {
         scrollTrigger: { trigger: ".exp-section", start: "top 80%", once: true },
@@ -105,14 +119,14 @@
 
       gsap.utils.toArray<HTMLElement>(".exp-block").forEach((el, i) => {
         gsap.from(el, {
-          scrollTrigger: { trigger: el, start: "top 80%", once: true },
+          scrollTrigger: { trigger: el, start: "top 85%", once: true },
           y: 50, autoAlpha: 0, duration: 0.7, delay: i * 0.15, ease: "power3.out",
         });
       });
 
       gsap.utils.toArray<HTMLElement>(".exp-highlight").forEach((el) => {
         gsap.from(el, {
-          scrollTrigger: { trigger: el, start: "top 90%", once: true },
+          scrollTrigger: { trigger: el, start: "top 92%", once: true },
           x: -20, autoAlpha: 0, duration: 0.4, ease: "power2.out",
         });
       });
@@ -153,27 +167,27 @@
 
 <section bind:this={container} class="max-w-content mx-auto px-4 md:px-8">
   <div class="py-16 md:py-24">
-    <div class="about-tag tag-bracket mb-6" style="visibility:hidden;">[ ABOUT // PROFILE ]</div>
+    <div class="about-tag tag-bracket mb-6">[ ABOUT // PROFILE ]</div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-12 lg:gap-16">
       <div class="lg:col-span-2">
-        <h1 class="about-name heading-display text-3xl md:text-5xl mb-6" style="visibility:hidden;">
+        <h1 class="about-name heading-display text-3xl md:text-5xl mb-6">
           WATCHAKORN<br />BUDDEEWONG
         </h1>
         <div class="accent-line-anim accent-line mb-6" />
-        <p class="about-desc text-muted text-sm leading-relaxed max-w-lg mb-6" style="visibility:hidden;">
+        <p class="about-desc text-muted text-sm leading-relaxed max-w-lg mb-6">
           Full stack software developer based in Thailand. Building scalable backend services,
           mobile applications, and web platforms. Experienced in leading small teams, designing
           system architecture, and shipping products from concept to production.
         </p>
         <div class="about-links flex flex-wrap gap-3">
-          <a href="mailto:{links.email}" class="btn-primary" style="visibility:hidden;">EMAIL ↗</a>
-          <a href={links.github} target="_blank" rel="noopener noreferrer" class="btn-outline" style="visibility:hidden;">GITHUB ↗</a>
-          <a href={links.linkedin} target="_blank" rel="noopener noreferrer" class="btn-outline" style="visibility:hidden;">LINKEDIN ↗</a>
+          <a href="mailto:{links.email}" class="btn-primary">EMAIL ↗</a>
+          <a href={links.github} target="_blank" rel="noopener noreferrer" class="btn-outline">GITHUB ↗</a>
+          <a href={links.linkedin} target="_blank" rel="noopener noreferrer" class="btn-outline">LINKEDIN ↗</a>
         </div>
       </div>
 
-      <div class="quick-ref border border-border p-6" style="visibility:hidden;">
+      <div class="quick-ref border border-border p-6">
         <div class="tag-bracket mb-4">[ QUICK REF ]</div>
         <div class="space-y-3 text-xs">
           <div class="flex justify-between border-b border-border pb-2">
@@ -204,10 +218,10 @@
   <div class="section-border-anim section-border" />
 
   <div class="skills-section py-16 md:py-24">
-    <div class="skills-tag tag-bracket mb-8" style="visibility:hidden;">[ TECHNICAL SKILLS ]</div>
+    <div class="skills-tag tag-bracket mb-8">[ TECHNICAL SKILLS ]</div>
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-0">
       {#each skillGroups as group}
-        <div class="skill-group card-industrial p-5" style="visibility:hidden;">
+        <div class="skill-group card-industrial p-5">
           <div class="text-accent text-[10px] font-bold tracking-widest mb-3">
             {group.label}
           </div>
@@ -226,10 +240,10 @@
   <div class="section-border-anim section-border" />
 
   <div class="exp-section py-16 md:py-24">
-    <div class="exp-tag tag-bracket mb-8" style="visibility:hidden;">[ EXPERIENCE ]</div>
+    <div class="exp-tag tag-bracket mb-8">[ EXPERIENCE ]</div>
 
     {#each experience as exp, i}
-      <div class="exp-block mb-16 last:mb-0" style="visibility:hidden;">
+      <div class="exp-block mb-16 last:mb-0">
         <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 lg:gap-12">
           <div class="lg:col-span-1">
             <div class="text-accent text-[10px] font-bold tracking-widest mb-2">
@@ -247,7 +261,7 @@
 
             <ul class="space-y-2 mb-6">
               {#each exp.highlights as highlight}
-                <li class="exp-highlight text-muted text-xs leading-relaxed flex gap-2" style="visibility:hidden;">
+                <li class="exp-highlight text-muted text-xs leading-relaxed flex gap-2">
                   <span class="text-accent mt-0.5 shrink-0">///</span>
                   <span>{highlight}</span>
                 </li>
@@ -275,20 +289,21 @@
     <div class="section-border-anim section-border" />
 
     <div class="waka-section py-16 md:py-24">
-      <div class="waka-tag tag-bracket mb-8" style="visibility:hidden;">[ CODING ACTIVITY // LAST 30 DAYS ]</div>
+      <div class="waka-tag tag-bracket mb-8">[ CODING ACTIVITY // LAST 30 DAYS ]</div>
 
       <div class="space-y-2">
         {#each waketimes as wt}
           {#if wt.percent > 0}
-            <div class="waka-bar grid grid-cols-12 gap-3 items-center text-xs" style="visibility:hidden;">
+            <div class="waka-bar grid grid-cols-12 gap-3 items-center text-xs">
               <div class="col-span-2 md:col-span-1 text-right text-muted truncate">
                 {wt.name}
               </div>
               <div class="col-span-8 md:col-span-10">
                 <div class="w-full bg-surface h-2">
                   <div
-                    class="bg-accent h-2 transition-all duration-500"
-                    style="width: {wt.percent}%"
+                    class="waka-fill bg-accent h-2"
+                    data-percent={wt.percent}
+                    style="width: 0%"
                   />
                 </div>
               </div>

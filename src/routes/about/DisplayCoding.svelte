@@ -1,7 +1,6 @@
 <!-- DataDisplay.svelte -->
 <script lang="ts">
   export let waketimes: any[];
-  export let maxPercent: number;
 </script>
 
 {#if waketimes}
