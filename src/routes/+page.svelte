@@ -49,6 +49,8 @@
     { id: "api", label: "BACKEND / API", title: "Golang service route", note: "Fire a request from client to gateway to Go service to database." },
     { id: "devops", label: "DEVOPS GAME", title: "Deploy pipeline run", note: "Trigger a release through Docker, Jenkins, AWS S3, GCP, and Cloudflare." },
     { id: "redis", label: "REDIS GAME", title: "Cache and queue control", note: "Click cache lookup or push messages to see Redis speed up reads and buffer jobs." },
+    { id: "data", label: "DATA GAME", title: "Database routing board", note: "Choose where product data lands: relational records, document data, cache, or object storage." },
+    { id: "testing", label: "TEST GAME", title: "Load test control room", note: "Fire unit, integration, and Locust checks before traffic reaches production." },
   ] as const;
 
   type DemoMode = typeof demoModes[number]["id"];
@@ -57,6 +59,8 @@
   type RedisMode = "cache" | "queue";
 
   const devOpsSteps = ["DOCKER", "JENKINS", "AWS S3", "GCP", "CLOUDFLARE"];
+  const dataStores = ["POSTGRES", "MONGODB", "REDIS", "S3 / GCP"];
+  const testStages = ["UNIT", "INTEGRATION", "LOCUST", "RELEASE"];
 
   let activeDemo: DemoMode = "mobile";
   let demoPulse = 0;
@@ -65,6 +69,8 @@
   let redisMode: RedisMode = "cache";
   let redisCacheWarm = false;
   let redisQueueDepth = 0;
+  let dataRoute = 0;
+  let testLoad = 0;
   let apiTimeout: ReturnType<typeof setTimeout>;
   let devOpsTimeout: ReturnType<typeof setTimeout>;
 
@@ -73,6 +79,8 @@
   $: devOpsProgress = activeDemo === "devops" ? demoPulse % (devOpsSteps.length + 1) : 0;
   $: redisLatency = redisCacheWarm ? "12ms" : "240ms";
   $: redisStatus = redisMode === "cache" ? (redisCacheWarm ? "cache hit" : "cache miss") : `${redisQueueDepth} queued`;
+  $: dataStatus = dataStores[dataRoute];
+  $: testStatus = `${testStages[Math.min(testLoad, testStages.length - 1)]} PASS`;
 
   const resetTimedDemos = () => {
     clearTimeout(apiTimeout);
@@ -114,6 +122,15 @@
         devOpsStatus = "deployed";
       }, 750);
       return;
+    }
+
+    if (id === "data") {
+      dataRoute = (dataRoute + 1) % dataStores.length;
+      return;
+    }
+
+    if (id === "testing") {
+      testLoad = (testLoad + 1) % testStages.length;
     }
   };
 
@@ -370,7 +387,7 @@
             </div>
             <div class="p-3">
               <div class="text-muted">STATUS</div>
-              <div class="text-accent font-bold mt-1">{activeDemo === 'api' ? apiStatus : activeDemo === 'devops' ? devOpsStatus : activeDemo === 'redis' ? redisStatus : 'ready'}</div>
+              <div class="text-accent font-bold mt-1">{activeDemo === 'api' ? apiStatus : activeDemo === 'devops' ? devOpsStatus : activeDemo === 'redis' ? redisStatus : activeDemo === 'data' ? dataStatus : activeDemo === 'testing' ? testStatus : 'ready'}</div>
             </div>
           </div>
         </div>
@@ -473,6 +490,56 @@
                 <div class="p-3 border-r border-border text-muted">PIPELINE: JENKINS</div>
                 <div class="p-3 border-r border-border text-muted">STORAGE: AWS S3 / GCP</div>
                 <div class="p-3 text-accent font-bold">{devOpsStatus === 'deployed' ? 'EDGE LIVE' : devOpsStatus === 'building' ? 'BUILDING' : 'READY'}</div>
+              </div>
+            </div>
+          {:else if activeDemo === 'data'}
+            <div>
+              <div class="flex items-center justify-between mb-5 gap-4">
+                <div>
+                  <div class="tag-bracket mb-2">[ DATA ROUTING GAME ]</div>
+                  <div class="text-xs text-muted uppercase tracking-widest">ACTIVE STORE: {dataStatus}</div>
+                </div>
+                <button type="button" class="btn-primary" on:click={() => playDemo('data')}>ROUTE DATA</button>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-4 gap-0 border border-border bg-substrate">
+                {#each dataStores as store, i}
+                  <div class="p-5 border-b md:border-b-0 md:border-r border-border last:border-r-0 {i === dataRoute ? 'bg-accent text-white' : 'bg-card text-ink'}">
+                    <div class="text-[10px] font-bold uppercase tracking-widest mb-8">DB-0{i + 1}</div>
+                    <div class="heading-display text-xl break-words">{store}</div>
+                    <div class="text-[9px] uppercase tracking-widest mt-3 opacity-75">
+                      {i === 0 ? 'RELATIONAL' : i === 1 ? 'DOCUMENT' : i === 2 ? 'CACHE' : 'OBJECTS'}
+                    </div>
+                  </div>
+                {/each}
+              </div>
+              <div class="grid grid-cols-3 gap-0 border-x border-b border-border text-[10px] uppercase tracking-widest">
+                <div class="p-3 border-r border-border text-muted">SCHEMA: ATLAS / SQL</div>
+                <div class="p-3 border-r border-border text-muted">FLOW: API WRITE</div>
+                <div class="p-3 text-accent font-bold">{dataStatus}</div>
+              </div>
+            </div>
+          {:else if activeDemo === 'testing'}
+            <div>
+              <div class="flex items-center justify-between mb-5 gap-4">
+                <div>
+                  <div class="tag-bracket mb-2">[ TEST / LOAD GAME ]</div>
+                  <div class="text-xs text-muted uppercase tracking-widest">CHECKPOINT: {testStatus}</div>
+                </div>
+                <button type="button" class="btn-primary" on:click={() => playDemo('testing')}>RUN CHECK</button>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-4 gap-0 border border-border bg-substrate">
+                {#each testStages as stage, i}
+                  <div class="p-5 border-b md:border-b-0 md:border-r border-border last:border-r-0 {i <= testLoad ? 'bg-accent text-white' : 'bg-card text-ink'}">
+                    <div class="text-[10px] font-bold uppercase tracking-widest mb-8">QA-0{i + 1}</div>
+                    <div class="heading-display text-xl break-words">{stage}</div>
+                    <div class="text-[9px] uppercase tracking-widest mt-3 opacity-75">{i <= testLoad ? 'PASS' : 'WAIT'}</div>
+                  </div>
+                {/each}
+              </div>
+              <div class="grid grid-cols-3 gap-0 border-x border-b border-border text-[10px] uppercase tracking-widest">
+                <div class="p-3 border-r border-border text-muted">UNIT: SERVICE LOGIC</div>
+                <div class="p-3 border-r border-border text-muted">LOAD: LOCUST</div>
+                <div class="p-3 text-accent font-bold">{testStatus}</div>
               </div>
             </div>
           {:else}
