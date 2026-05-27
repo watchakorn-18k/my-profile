@@ -36,7 +36,7 @@
 <section class="max-w-content mx-auto px-4 md:px-8">
   <div class="py-16 md:py-24 lg:py-32" class:fade-up={visible}>
     <div class="tag-bracket mb-6 fade-up" class:fade-up-delay-1={visible}>
-      [ FULL STACK DEVELOPER // NONTHABURI, TH ]
+      [ FULL STACK DEVELOPER // NAKHON RATCHASIMA, TH ]
     </div>
 
     <h1 class="heading-display text-4xl md:text-6xl lg:text-8xl mb-8 fade-up" class:fade-up-delay-1={visible}>

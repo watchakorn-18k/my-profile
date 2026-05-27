@@ -22,7 +22,7 @@
       company: "FAKDUAI LOGISTICS & DIGITAL PLATFORM CO., LTD.",
       role: "Software Developer (Full Stack)",
       period: "JAN 2025 - PRESENT",
-      location: "NONTHABURI, TH // REMOTE",
+      location: "NAKHON RATCHASIMA, TH // REMOTE",
       highlights: [
         "Lead developer, architect, and coordinator for Pinto social media super app and mobile POS system",
         "Designed project architecture from ground up: Clean Architecture, database schema, real-time event flows, tech stack decisions",
@@ -102,7 +102,7 @@
         <div class="space-y-3 text-xs">
           <div class="flex justify-between border-b border-border pb-2">
             <span class="text-muted">LOCATION</span>
-            <span>NONTHABURI, TH</span>
+            <span>NAKHON RATCHASIMA, TH</span>
           </div>
           <div class="flex justify-between border-b border-border pb-2">
             <span class="text-muted">STATUS</span>
