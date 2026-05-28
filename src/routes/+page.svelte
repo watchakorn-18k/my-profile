@@ -8,6 +8,94 @@
   gsap.registerPlugin(ScrollTrigger);
 
   let container: HTMLElement;
+  let profileVideo: HTMLVideoElement | null = null;
+  let showProfileVideo = false;
+  let videoCurrentTime = 0;
+  let videoDuration = 0;
+  let videoPlaying = false;
+  let videoMuted = false;
+  let wasmOsLoaded = false;
+  let speechSupported = false;
+  let isSpeaking = false;
+  let preferredSpeechVoice: SpeechSynthesisVoice | null = null;
+
+  const heroSpeechText = "Watchakorn Buddeewong. Full stack developer building Flutter mobile apps, Vue and Nuxt web platforms, and Golang backend services. Currently lead developer at Fakduai, architecting social media and POS systems from interface to API to deployment.";
+
+  const selectPreferredSpeechVoice = () => {
+    if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
+
+    const voices = window.speechSynthesis.getVoices();
+    preferredSpeechVoice = voices.find((voice) => /male|daniel|david|alex|fred/i.test(voice.name) && voice.lang.startsWith("en"))
+      ?? voices.find((voice) => voice.lang.startsWith("en"))
+      ?? null;
+  };
+
+  const formatVideoTime = (seconds: number) => {
+    if (!Number.isFinite(seconds)) return "0:00";
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = Math.floor(seconds % 60).toString().padStart(2, "0");
+    return `${minutes}:${remainingSeconds}`;
+  };
+
+  const toggleProfileVideo = () => {
+    if (!profileVideo) return;
+    if (profileVideo.paused) {
+      profileVideo.play();
+      videoPlaying = true;
+      return;
+    }
+    profileVideo.pause();
+    videoPlaying = false;
+  };
+
+  const seekProfileVideo = (event: Event) => {
+    if (!profileVideo) return;
+    const value = Number((event.target as HTMLInputElement).value);
+    profileVideo.currentTime = value;
+    videoCurrentTime = value;
+  };
+
+  const toggleProfileVideoMute = () => {
+    if (!profileVideo) return;
+    profileVideo.muted = !profileVideo.muted;
+    videoMuted = profileVideo.muted;
+  };
+
+  const openProfileVideoFullscreen = () => {
+    profileVideo?.requestFullscreen();
+  };
+
+  const closeProfileVideo = () => {
+    if (profileVideo) profileVideo.pause();
+    videoPlaying = false;
+    showProfileVideo = false;
+  };
+
+  const handleModalKeydown = (event: KeyboardEvent) => {
+    if (showProfileVideo && event.key === "Escape") closeProfileVideo();
+  };
+
+  const speakHeroIntro = () => {
+    if (typeof window === "undefined" || !("speechSynthesis" in window) || !("SpeechSynthesisUtterance" in window)) return;
+
+    if (isSpeaking) {
+      window.speechSynthesis.cancel();
+      isSpeaking = false;
+      return;
+    }
+
+    const utterance = new window.SpeechSynthesisUtterance(heroSpeechText);
+    if (preferredSpeechVoice) utterance.voice = preferredSpeechVoice;
+    utterance.lang = preferredSpeechVoice?.lang ?? "en-US";
+    utterance.rate = 0.95;
+    utterance.pitch = 0.8;
+    utterance.onend = () => isSpeaking = false;
+    utterance.onerror = () => isSpeaking = false;
+
+    window.speechSynthesis.cancel();
+    isSpeaking = true;
+    window.speechSynthesis.speak(utterance);
+  };
 
   const downloadFile = () => {
     const link = document.createElement("a");
@@ -135,6 +223,12 @@
   };
 
   onMount(() => {
+    speechSupported = "speechSynthesis" in window && "SpeechSynthesisUtterance" in window;
+    if (speechSupported) {
+      selectPreferredSpeechVoice();
+      window.speechSynthesis.onvoiceschanged = selectPreferredSpeechVoice;
+    }
+
     const ctx = gsap.context(() => {
       const heroTl = gsap.timeline({ defaults: { duration: 0.7, ease: "power3.out" } });
 
@@ -269,9 +363,17 @@
 
     }, container);
 
-    return () => ctx.revert();
+    return () => {
+      if (speechSupported) {
+        window.speechSynthesis.cancel();
+        window.speechSynthesis.onvoiceschanged = null;
+      }
+      ctx.revert();
+    };
   });
 </script>
+
+<svelte:window on:keydown={handleModalKeydown} />
 
 <section bind:this={container} class="max-w-content mx-auto px-4 md:px-8">
   <div class="grid grid-cols-1 lg:grid-cols-[1fr_420px] gap-12 lg:gap-16 py-16 md:py-24 lg:py-32 items-start">
@@ -280,9 +382,9 @@
         [ RESUME // FULL STACK DEVELOPER // FLUTTER + VUE + GOLANG ]
       </div>
 
-      <h1 class="heading-display text-4xl md:text-6xl lg:text-8xl mb-8">
-        <span class="hero-name inline-block" style="visibility:hidden;">WATCHAKORN</span><br />
-        <span class="hero-accent text-accent inline-block" style="visibility:hidden;">BUDDEEWONG</span>
+      <h1 class="hero-title heading-display text-4xl md:text-6xl lg:text-8xl mb-8">
+        <span class="hero-name hero-glitch inline-block" data-text="WATCHAKORN" style="visibility:hidden;">WATCHAKORN</span><br />
+        <span class="hero-accent hero-glitch text-accent inline-block" data-text="BUDDEEWONG" style="visibility:hidden;">BUDDEEWONG</span>
       </h1>
 
       <div class="hero-desc max-w-xl mb-10" style="visibility:hidden;">
@@ -295,9 +397,22 @@
 
       <div class="hero-buttons flex flex-wrap gap-3 mb-10">
         <a href="mailto:wk18k@proton.me" class="btn-primary" style="visibility:hidden;">
-          CONTACT ↗
+          CONTACT ME ↗
         </a>
-        <button on:click={downloadFile} class="btn-outline" style="visibility:hidden;">
+        <button type="button" on:click={() => showProfileVideo = true} class="btn-outline" style="visibility:hidden;">
+          WATCH PROFILE
+        </button>
+        <button
+          type="button"
+          on:click={speakHeroIntro}
+          class="btn-outline"
+          style="visibility:hidden;"
+          disabled={!speechSupported}
+          aria-pressed={isSpeaking}
+        >
+          {isSpeaking ? "▰ SPEAKING NOW" : "▱ VOICE INTRO"}
+        </button>
+        <button type="button" on:click={downloadFile} class="btn-outline" style="visibility:hidden;">
           DOWNLOAD CV
         </button>
       </div>
@@ -317,12 +432,20 @@
       </div>
     </div>
 
-    <figure class="hero-portrait card-industrial p-3" style="visibility:hidden;">
-      <img
-        src="{base}/profile.png"
-        alt="Watchakorn Buddeewong speaking with a microphone"
-        class="aspect-[4/5] w-full object-cover"
-      />
+    <figure class="hero-portrait card-industrial p-3 group" style="visibility:hidden;">
+      <div class="relative overflow-hidden">
+        <img
+          src="{base}/profile.png"
+          alt="Watchakorn Buddeewong speaking with a microphone"
+          class="aspect-[4/5] w-full object-cover"
+        />
+        <img
+          src="https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExZHNjdHMwNzk3ZDA0bzlzYTRia2Nxa2ZobHh2MGsxN294YmpxOTY1biZlcD12MV9naWZzX3NlYXJjaCZjdD1n/gSev6spAmm4dVXRLsV/200.gif"
+          alt=""
+          aria-hidden="true"
+          class="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-0 mix-blend-screen grayscale transition-opacity duration-300 group-hover:opacity-25"
+        />
+      </div>
       <figcaption class="tag-bracket border-t border-border pt-3 mt-3">
         [ WATCHAKORN // FULL STACK DEVELOPER ]
       </figcaption>
@@ -343,6 +466,74 @@
       </div>
     {/each}
   </div>
+
+  <div class="wasm-os-section py-16 md:py-24">
+    <div class="grid grid-cols-1 lg:grid-cols-[0.72fr_1.28fr] border border-border bg-card">
+      <div class="p-5 md:p-6 lg:border-r border-border bg-substrate">
+        <div class="tag-bracket mb-4">[ WASM OS NODE // V86 ]</div>
+        <h2 class="heading-display text-2xl md:text-4xl mb-5">
+          BOOT<br />FREEDOS
+        </h2>
+        <div class="accent-line mb-5" />
+        <p class="text-xs text-muted leading-relaxed mb-6">
+          Browser x86 emulator running a tiny FreeDOS image through WebAssembly. No local WASM build step — loaded from the public v86 demo only when activated.
+        </p>
+        <div class="grid grid-cols-2 gap-0 border border-border text-[10px] uppercase tracking-widest mb-4">
+          <div class="p-3 border-r border-border">
+            <div class="text-muted">PROFILE</div>
+            <div class="text-accent font-bold mt-1">FREEDOS</div>
+          </div>
+          <div class="p-3">
+            <div class="text-muted">PAYLOAD</div>
+            <div class="text-accent font-bold mt-1">0.6 MB</div>
+          </div>
+        </div>
+        <button
+          type="button"
+          class="btn-primary w-full justify-center"
+          on:click={() => wasmOsLoaded = true}
+          disabled={wasmOsLoaded}
+        >
+          {wasmOsLoaded ? 'OS BOOTED' : 'BOOT WASM OS'}
+        </button>
+      </div>
+
+      <div class="relative min-h-[420px] overflow-hidden wasm-os-shell">
+        <div class="absolute inset-0 opacity-20 pointer-events-none wasm-scanline" />
+        <div class="relative z-10 grid grid-cols-[1fr_auto] border-b border-white/20 wasm-os-chrome">
+          <div class="px-4 py-3">
+            <div class="tag-bracket text-white/70">[ EMULATED TERMINAL // X86_COMPAT ]</div>
+          </div>
+          <div class="border-l border-border px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-accent">
+            {wasmOsLoaded ? 'LIVE' : 'STANDBY'}
+          </div>
+        </div>
+
+        {#if wasmOsLoaded}
+          <div class="relative z-10 h-[380px] overflow-hidden wasm-os-viewport">
+            <iframe
+              title="v86 FreeDOS WebAssembly OS emulator"
+              src="https://copy.sh/v86/?profile=freedos"
+              class="h-full w-full wasm-os-frame"
+              loading="lazy"
+            />
+            <div class="pointer-events-none absolute inset-0 wasm-os-tint" />
+          </div>
+        {:else}
+          <div class="relative z-10 flex h-[380px] flex-col justify-center p-6 md:p-8">
+            <div class="heading-display text-5xl md:text-7xl text-accent mb-4">86</div>
+            <div class="text-[10px] uppercase tracking-widest text-white/65 space-y-2">
+              <div>&gt; wasm runtime idle</div>
+              <div>&gt; disk image detached</div>
+              <div>&gt; press boot to mount freedos</div>
+            </div>
+          </div>
+        {/if}
+      </div>
+    </div>
+  </div>
+
+  <div class="section-border-anim section-border" />
 
   <div class="mini-demo-section py-16 md:py-24">
     <div class="mini-demo-title mb-8" style="visibility:hidden;">
@@ -655,3 +846,191 @@
     </div>
   </div>
 </section>
+
+{#if showProfileVideo}
+  <div class="fixed inset-0 z-50 px-4 py-6 md:p-10 flex items-center justify-center">
+    <button
+      type="button"
+      class="absolute inset-0 bg-ink/80 backdrop-blur-sm"
+      aria-label="Close profile video"
+      on:click={closeProfileVideo}
+    />
+    <div
+      class="relative w-full max-w-6xl border-2 border-ink bg-substrate shadow-[14px_14px_0_var(--color-accent)]"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Profile video"
+    >
+      <div class="grid grid-cols-[1fr_auto] border-b-2 border-ink">
+        <div class="px-4 py-3 md:px-5">
+          <div class="tag-bracket mb-2">[ PROFILE VIDEO // WATCHAKORN ]</div>
+          <div class="heading-display text-xl md:text-3xl leading-none">FIELD RECORDING</div>
+        </div>
+        <button type="button" class="border-l-2 border-ink px-4 md:px-6 text-[10px] font-bold uppercase tracking-widest hover:bg-accent hover:text-white active:translate-y-px transition-colors" on:click={closeProfileVideo}>
+          CLOSE
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-[1fr_220px] bg-card">
+        <div class="p-3 md:p-5">
+          <div class="relative border border-ink bg-ink overflow-hidden">
+            <div class="absolute left-0 top-0 z-10 border-b-2 border-r-2 border-accent bg-substrate px-3 py-2 text-[9px] font-bold uppercase tracking-widest text-accent">
+              LIVE PROFILE
+            </div>
+            <video
+              bind:this={profileVideo}
+              src="{base}/profile.mp4"
+              class="w-full max-h-[72vh] bg-ink object-contain hover:grayscale-0 transition-all duration-500 {videoPlaying ? 'grayscale-0' : 'grayscale'}"
+              autoplay
+              playsinline
+              on:click={toggleProfileVideo}
+              on:loadedmetadata={() => {
+                videoDuration = profileVideo?.duration ?? 0;
+              }}
+              on:play={() => videoPlaying = true}
+              on:pause={() => videoPlaying = false}
+              on:volumechange={() => {
+                videoMuted = profileVideo?.muted ?? false;
+              }}
+              on:timeupdate={() => videoCurrentTime = profileVideo?.currentTime ?? 0}
+            >
+              <track kind="captions" />
+            </video>
+            <div class="absolute inset-x-3 bottom-3 z-20 bg-ink/80 text-white backdrop-blur-sm">
+              <input
+                type="range"
+                min="0"
+                max={videoDuration || 0}
+                step="0.1"
+                value={videoCurrentTime}
+                aria-label="Seek profile video"
+                class="w-full h-2 block accent-accent cursor-pointer"
+                on:input={seekProfileVideo}
+              />
+              <div class="grid grid-cols-[auto_1fr_auto_auto] gap-3 p-2 items-center text-[10px] uppercase tracking-widest">
+                <button
+                  type="button"
+                  class="font-bold hover:text-accent active:translate-y-px transition-colors"
+                  on:click={toggleProfileVideo}
+                >
+                  {videoPlaying ? 'PAUSE' : 'PLAY'}
+                </button>
+                <div class="flex items-center justify-between text-white/70 tabular-nums">
+                  <span>{formatVideoTime(videoCurrentTime)}</span>
+                  <span>{formatVideoTime(videoDuration)}</span>
+                </div>
+                <button
+                  type="button"
+                  class="font-bold hover:text-accent active:translate-y-px transition-colors"
+                  on:click={toggleProfileVideoMute}
+                >
+                  {videoMuted ? 'MUTED' : 'SOUND'}
+                </button>
+                <button
+                  type="button"
+                  class="font-bold hover:text-accent active:translate-y-px transition-colors"
+                  on:click={openProfileVideoFullscreen}
+                >
+                  FULL
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <aside class="border-t-2 lg:border-t-0 lg:border-l-2 border-ink p-4 md:p-5 bg-substrate">
+          <div class="tag-bracket mb-4">[ PLAYER STATUS ]</div>
+          <div class="space-y-4 text-[10px] uppercase tracking-widest text-muted">
+            <div class="border border-border p-3 bg-card">
+              <div class="text-border mb-1">SOURCE</div>
+              <div class="heading-display text-lg text-ink">PROFILE.MP4</div>
+            </div>
+            <div class="border border-border p-3 bg-card">
+              <div class="text-border mb-1">TIME</div>
+              <div class="heading-display text-lg text-accent tabular-nums">
+                {formatVideoTime(videoCurrentTime)} / {formatVideoTime(videoDuration)}
+              </div>
+            </div>
+            <div class="border border-border p-3 bg-card">
+              <div class="text-border mb-1">MODE</div>
+              <div class="heading-display text-lg text-ink">BRUTAL PLAYER</div>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </div>
+{/if}
+
+
+<style>
+  .hero-glitch {
+    position: relative;
+    isolation: isolate;
+  }
+
+  .hero-glitch::before,
+  .hero-glitch::after {
+    content: attr(data-text);
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 120ms steps(2, end), transform 120ms steps(2, end);
+  }
+
+  .hero-title:hover .hero-glitch {
+    text-shadow: 3px 0 0 color-mix(in srgb, var(--color-accent) 70%, transparent);
+  }
+
+  .hero-title:hover .hero-glitch::before {
+    opacity: 0.5;
+    color: var(--color-accent);
+    clip-path: inset(0 0 58% 0);
+    animation: hero-glitch-top 520ms steps(2, end) infinite;
+  }
+
+  .hero-title:hover .hero-glitch::after {
+    opacity: 0.35;
+    color: var(--color-ink);
+    clip-path: inset(62% 0 0 0);
+    animation: hero-glitch-bottom 420ms steps(2, end) infinite;
+  }
+
+  @keyframes hero-glitch-top {
+    0%, 100% { transform: translate(0, 0); }
+    25% { transform: translate(-3px, -1px); }
+    50% { transform: translate(2px, 0); }
+    75% { transform: translate(-1px, 1px); }
+  }
+
+  @keyframes hero-glitch-bottom {
+    0%, 100% { transform: translate(0, 0); }
+    20% { transform: translate(3px, 1px); }
+    45% { transform: translate(-2px, 0); }
+    70% { transform: translate(1px, -1px); }
+  }
+
+  .wasm-scanline {
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255, 255, 255, 0.16) 2px, rgba(255, 255, 255, 0.16) 3px);
+  }
+
+  .wasm-os-shell,
+  .wasm-os-chrome,
+  .wasm-os-viewport,
+  .wasm-os-frame {
+    background: #0a0a0a;
+    color: #eaeaea;
+  }
+
+  .wasm-os-frame {
+    border: 0;
+    color-scheme: dark;
+    filter: invert(1) grayscale(1) contrast(1.35) brightness(0.72);
+  }
+
+  .wasm-os-tint {
+    background: rgba(10, 10, 10, 0.18);
+    mix-blend-mode: multiply;
+  }
+</style>
