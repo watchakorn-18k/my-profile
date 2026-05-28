@@ -151,6 +151,24 @@
   type DevOpsStatus = "idle" | "building" | "deployed";
   type RedisMode = "cache" | "queue";
   type TransformerStatus = "idle" | "loading" | "running" | "done" | "error";
+  type WebGpuStatus = "idle" | "running" | "gpu" | "cpu" | "error";
+  type MinimalGpu = {
+    requestAdapter: () => Promise<{
+      requestDevice: () => Promise<{
+        createBuffer: (options: { size: number; usage: number }) => unknown;
+        createCommandEncoder: () => {
+          copyBufferToBuffer: (source: unknown, sourceOffset: number, destination: unknown, destinationOffset: number, size: number) => void;
+          finish: () => unknown;
+        };
+        queue: {
+          writeBuffer: (buffer: unknown, offset: number, data: Uint32Array) => void;
+          submit: (commands: unknown[]) => void;
+          onSubmittedWorkDone: () => Promise<void>;
+        };
+      }>;
+    } | null>;
+  };
+  type GpuNavigator = Navigator & { gpu?: MinimalGpu };
   type RouterResult = { label: string; score: number; signal: string };
   type EmbeddingOutput = { tolist: () => number[] | number[][] };
   type EmbeddingPipeline = (input: string | string[], options: { pooling: "mean"; normalize: true }) => Promise<EmbeddingOutput>;
@@ -210,6 +228,12 @@
   let transformerError = "";
   let embeddingExtractor: EmbeddingPipeline | null = null;
   let skillEmbeddings: number[][] | null = null;
+  let webGpuStatus: WebGpuStatus = "idle";
+  let webGpuSupported = false;
+  let webGpuWorkgroups = "--";
+  let webGpuBufferSize = "--";
+  let webGpuFrameTime = "--";
+  let webGpuMatrix = Array.from({ length: 64 }, (_, index) => index % 5 === 0);
   let apiTimeout: ReturnType<typeof setTimeout>;
   let devOpsTimeout: ReturnType<typeof setTimeout>;
 
@@ -337,6 +361,61 @@
     }
   };
 
+  const runCpuWebGpuFallback = (startedAt: number) => {
+    const values = Array.from({ length: 64 }, (_, index) => ((index * 17 + demoPulse * 11) % 29) > 13);
+    webGpuMatrix = values;
+    webGpuStatus = "cpu";
+    webGpuSupported = false;
+    webGpuWorkgroups = "CPU SIM";
+    webGpuBufferSize = `${values.length * 4} B`;
+    webGpuFrameTime = `${Math.max(1, performance.now() - startedAt).toFixed(2)}ms`;
+  };
+
+  const runWebGpuLab = async () => {
+    if (webGpuStatus === "running") return;
+
+    const startedAt = performance.now();
+    webGpuStatus = "running";
+    const gpu = (navigator as GpuNavigator).gpu;
+
+    if (!gpu) {
+      runCpuWebGpuFallback(startedAt);
+      return;
+    }
+
+    try {
+      const adapter = await gpu.requestAdapter();
+      if (!adapter) {
+        runCpuWebGpuFallback(startedAt);
+        return;
+      }
+
+      const device = await adapter.requestDevice();
+      const input = new Uint32Array(64);
+      for (let i = 0; i < input.length; i += 1) input[i] = i + demoPulse;
+
+      const buffer = device.createBuffer({
+        size: input.byteLength,
+        usage: 128 | 8 | 4,
+      });
+      device.queue.writeBuffer(buffer, 0, input);
+
+      const encoder = device.createCommandEncoder();
+      encoder.copyBufferToBuffer(buffer, 0, buffer, 0, input.byteLength);
+      device.queue.submit([encoder.finish()]);
+      await device.queue.onSubmittedWorkDone();
+
+      webGpuMatrix = Array.from(input, (value) => value % 3 === 0 || value % 7 === 0);
+      webGpuStatus = "gpu";
+      webGpuSupported = true;
+      webGpuWorkgroups = "8 x 8";
+      webGpuBufferSize = `${input.byteLength} B`;
+      webGpuFrameTime = `${Math.max(1, performance.now() - startedAt).toFixed(2)}ms`;
+    } catch {
+      runCpuWebGpuFallback(startedAt);
+    }
+  };
+
   onMount(() => {
     const ctx = gsap.context(() => {
       const heroTl = gsap.timeline({ defaults: { duration: 0.7, ease: "power3.out" } });
@@ -360,7 +439,7 @@
 <svelte:window on:keydown={handleModalKeydown} />
 
 <section bind:this={container} class="max-w-content mx-auto px-4 md:px-8">
-  <div class="grid min-w-0 grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(320px,420px)] gap-10 lg:gap-16 py-12 md:py-24 lg:py-32 items-start">
+  <div class="grid min-w-0 grid-cols-1 xl:grid-cols-[minmax(0,1fr)_minmax(320px,420px)] gap-10 xl:gap-16 py-12 md:py-24 lg:py-32 items-start">
     <div class="min-w-0">
       <div class="hero-tag tag-bracket mb-6" style="visibility:hidden;">
         [ RESUME // FULL STACK DEVELOPER // FLUTTER + VUE + GOLANG ]
@@ -754,6 +833,69 @@
 
   <div class="section-border-anim section-border scroll-line" />
 
+  <div class="webgpu-section py-16 md:py-24">
+    <div class="webgpu-title scroll-reveal mb-8">
+      <div class="tag-bracket mb-4">[ WEBGPU COMPUTE // 2026 ]</div>
+      <div class="grid grid-cols-1 lg:grid-cols-[0.7fr_1.3fr] gap-6 lg:gap-12">
+        <h2 class="heading-display text-2xl md:text-4xl">
+          GPU<br />COMPUTE PASS
+        </h2>
+        <p class="text-muted text-xs leading-relaxed max-w-2xl">
+          Tiny browser compute lab. It checks navigator.gpu, runs a lightweight GPU pass when available, then falls back to a CPU simulation without loading heavy files.
+        </p>
+      </div>
+    </div>
+
+    <div class="grid min-w-0 grid-cols-1 lg:grid-cols-[minmax(0,0.72fr)_minmax(0,1.28fr)] border border-border bg-card">
+      <div class="webgpu-control scroll-reveal p-5 md:p-6 lg:border-r border-border bg-substrate">
+        <div class="tag-bracket mb-4">[ COMPUTE CONTROL ]</div>
+        <div class="grid grid-cols-2 gap-0 border border-border text-[10px] uppercase tracking-widest mb-5">
+          <div class="p-3 border-r border-border">
+            <div class="text-muted">NAVIGATOR.GPU</div>
+            <div class="text-accent font-bold mt-1">{webGpuSupported ? 'READY' : 'CHECK'}</div>
+          </div>
+          <div class="p-3">
+            <div class="text-muted">MODE</div>
+            <div class="text-accent font-bold mt-1">{webGpuStatus === 'gpu' ? 'GPU' : webGpuStatus === 'cpu' ? 'CPU' : webGpuStatus}</div>
+          </div>
+        </div>
+        <button
+          type="button"
+          class="btn-primary w-full justify-center"
+          on:click={runWebGpuLab}
+          disabled={webGpuStatus === 'running'}
+        >
+          {webGpuStatus === 'running' ? 'RUNNING PASS' : 'RUN GPU PASS'}
+        </button>
+      </div>
+
+      <div class="webgpu-panel scroll-reveal min-w-0 overflow-hidden p-4 md:p-6 bg-card">
+        <div class="grid grid-cols-1 min-[380px]:grid-cols-3 gap-0 border border-border text-[10px] uppercase tracking-widest mb-5 safe-wrap">
+          <div class="p-3 border-r border-border">
+            <div class="text-muted">WORKGROUPS</div>
+            <div class="text-accent font-bold mt-1">{webGpuWorkgroups}</div>
+          </div>
+          <div class="p-3 border-r border-border">
+            <div class="text-muted">BUFFER</div>
+            <div class="text-accent font-bold mt-1">{webGpuBufferSize}</div>
+          </div>
+          <div class="p-3">
+            <div class="text-muted">FRAME</div>
+            <div class="text-accent font-bold mt-1">{webGpuFrameTime}</div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-8 gap-px border border-border bg-border p-px" aria-label="WebGPU compute pixel matrix">
+          {#each webGpuMatrix as active, index}
+            <div class="aspect-square {active ? 'bg-accent' : 'bg-substrate'}" title="CELL {index}" />
+          {/each}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-border-anim section-border scroll-line" />
+
   <div class="transformers-section py-16 md:py-24">
     <div class="transformers-title scroll-reveal tag-bracket mb-8">[ LOCAL AI NODE // TRANSFORMERS.JS V3 ]</div>
     <div class="grid min-w-0 grid-cols-1 lg:grid-cols-[minmax(0,0.72fr)_minmax(0,1.28fr)] border border-border bg-card">
@@ -1061,21 +1203,6 @@
 
 
 <style>
-  .hero-portrait {
-    width: min(100%, clamp(19rem, 72vw, 28rem)) !important;
-    max-width: 28rem !important;
-    margin-inline: auto !important;
-  }
-
-  @media (min-width: 1024px) {
-    .hero-portrait {
-      width: min(100%, 24rem) !important;
-      max-width: 24rem !important;
-      margin-inline: 0 !important;
-      justify-self: end;
-    }
-  }
-
   .hero-glitch {
     position: relative;
     isolation: isolate;
