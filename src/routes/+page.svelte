@@ -1,7 +1,7 @@
 <script lang="ts">
   import resume from "$lib/assets/my_resume.pdf";
   import { base } from "$app/paths";
-  import { onMount } from "svelte";
+  import { onMount, tick } from "svelte";
   import gsap from "gsap";
   import { ScrollTrigger } from "gsap/ScrollTrigger";
 
@@ -14,20 +14,42 @@
   let videoDuration = 0;
   let videoPlaying = false;
   let videoMuted = false;
+  type V86Constructor = new (options: Record<string, unknown>) => unknown;
+
   let wasmOsLoaded = false;
-  let speechSupported = false;
-  let isSpeaking = false;
-  let preferredSpeechVoice: SpeechSynthesisVoice | null = null;
+  let wasmScreen: HTMLDivElement | null = null;
 
-  const heroSpeechText = "Watchakorn Buddeewong. Full stack developer building Flutter mobile apps, Vue and Nuxt web platforms, and Golang backend services. Currently lead developer at Fakduai, architecting social media and POS systems from interface to API to deployment.";
+  const loadV86Script = () => new Promise<void>((resolve, reject) => {
+    if ((window as Window & { V86?: V86Constructor }).V86) {
+      resolve();
+      return;
+    }
 
-  const selectPreferredSpeechVoice = () => {
-    if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
+    const script = document.createElement("script");
+    script.src = `${base}/v86/libv86.js`;
+    script.onload = () => resolve();
+    script.onerror = () => reject(new Error("Failed to load v86"));
+    document.head.appendChild(script);
+  });
 
-    const voices = window.speechSynthesis.getVoices();
-    preferredSpeechVoice = voices.find((voice) => /male|daniel|david|alex|fred/i.test(voice.name) && voice.lang.startsWith("en"))
-      ?? voices.find((voice) => voice.lang.startsWith("en"))
-      ?? null;
+  const bootWasmOs = async () => {
+    wasmOsLoaded = true;
+    await tick();
+    await loadV86Script();
+
+    if (!wasmScreen) return;
+
+    const V86 = (window as unknown as Window & { V86: V86Constructor }).V86;
+    new V86({
+      wasm_path: `${base}/v86/v86.wasm`,
+      memory_size: 32 * 1024 * 1024,
+      vga_memory_size: 2 * 1024 * 1024,
+      screen_container: wasmScreen,
+      bios: { url: `${base}/v86/seabios.bin` },
+      vga_bios: { url: `${base}/v86/vgabios.bin` },
+      cdrom: { url: `${base}/v86/linux.iso` },
+      autostart: true,
+    });
   };
 
   const formatVideoTime = (seconds: number) => {
@@ -75,28 +97,6 @@
     if (showProfileVideo && event.key === "Escape") closeProfileVideo();
   };
 
-  const speakHeroIntro = () => {
-    if (typeof window === "undefined" || !("speechSynthesis" in window) || !("SpeechSynthesisUtterance" in window)) return;
-
-    if (isSpeaking) {
-      window.speechSynthesis.cancel();
-      isSpeaking = false;
-      return;
-    }
-
-    const utterance = new window.SpeechSynthesisUtterance(heroSpeechText);
-    if (preferredSpeechVoice) utterance.voice = preferredSpeechVoice;
-    utterance.lang = preferredSpeechVoice?.lang ?? "en-US";
-    utterance.rate = 0.95;
-    utterance.pitch = 0.8;
-    utterance.onend = () => isSpeaking = false;
-    utterance.onerror = () => isSpeaking = false;
-
-    window.speechSynthesis.cancel();
-    isSpeaking = true;
-    window.speechSynthesis.speak(utterance);
-  };
-
   const downloadFile = () => {
     const link = document.createElement("a");
     link.href = resume;
@@ -112,6 +112,14 @@
     { category: "FRONTEND", items: "Flutter, Vue, Nuxt, Svelte, React" },
     { category: "DATA", items: "PostgreSQL, MongoDB, Redis, MySQL" },
     { category: "DEVOPS / CLOUD", items: "Docker, Jenkins, AWS S3, GCP, Cloudflare, GitHub Actions" },
+  ];
+
+  const webMcpPractices = [
+    { id: "01", title: "TOOL STRATEGY", rule: "One tool = one function. No overlap = no agent confusion.", detail: "Register tools when useful, unregister when not. More tools = bigger context window hit + slower completion." },
+    { id: "02", title: "NAMING", rule: "Distinguish execution vs initiation in tool names.", detail: "create-event fires now. start-event-creation-process redirects to form. Positive descriptions only." },
+    { id: "03", title: "MINIMIZE COMPUTE", rule: "Accept raw strings. Don't ask model to do math.", detail: "Declare specific param types: string, number, enum. Use natural labels not IDs." },
+    { id: "04", title: "RELIABILITY", rule: "Rate limits: return meaningful error or tell user to do manually.", detail: "Update UI state after function completes — agent uses UI to plan next steps. Validate strict in code, loose in schema." },
+    { id: "05", title: "EVALS", rule: "Use eval-driven dev: repeatable process, catches regressions.", detail: "Define: problem, baseline, ideal result, evaluation method. Don't patch narrow model quirks with narrow rules." },
   ];
 
   const careerStartYear = 2024;
@@ -223,12 +231,6 @@
   };
 
   onMount(() => {
-    speechSupported = "speechSynthesis" in window && "SpeechSynthesisUtterance" in window;
-    if (speechSupported) {
-      selectPreferredSpeechVoice();
-      window.speechSynthesis.onvoiceschanged = selectPreferredSpeechVoice;
-    }
-
     const ctx = gsap.context(() => {
       const heroTl = gsap.timeline({ defaults: { duration: 0.7, ease: "power3.out" } });
 
@@ -308,6 +310,32 @@
         once: true,
       });
 
+      gsap.from(".webmcp-title", {
+        scrollTrigger: {
+          trigger: ".webmcp-section",
+          start: "top 80%",
+          once: true,
+        },
+        y: 30,
+        autoAlpha: 0,
+        duration: 0.6,
+        ease: "power2.out",
+      });
+
+      ScrollTrigger.batch(".webmcp-card", {
+        onEnter: (elements) => {
+          gsap.from(elements, {
+            y: 40,
+            autoAlpha: 0,
+            duration: 0.5,
+            stagger: 0.08,
+            ease: "power2.out",
+          });
+        },
+        start: "top 85%",
+        once: true,
+      });
+
       gsap.from(".role-left", {
         scrollTrigger: {
           trigger: ".roles-section",
@@ -363,13 +391,7 @@
 
     }, container);
 
-    return () => {
-      if (speechSupported) {
-        window.speechSynthesis.cancel();
-        window.speechSynthesis.onvoiceschanged = null;
-      }
-      ctx.revert();
-    };
+    return () => ctx.revert();
   });
 </script>
 
@@ -401,16 +423,6 @@
         </a>
         <button type="button" on:click={() => showProfileVideo = true} class="btn-outline" style="visibility:hidden;">
           WATCH PROFILE
-        </button>
-        <button
-          type="button"
-          on:click={speakHeroIntro}
-          class="btn-outline"
-          style="visibility:hidden;"
-          disabled={!speechSupported}
-          aria-pressed={isSpeaking}
-        >
-          {isSpeaking ? "▰ SPEAKING NOW" : "▱ VOICE INTRO"}
         </button>
         <button type="button" on:click={downloadFile} class="btn-outline" style="visibility:hidden;">
           DOWNLOAD CV
@@ -472,26 +484,26 @@
       <div class="p-5 md:p-6 lg:border-r border-border bg-substrate">
         <div class="tag-bracket mb-4">[ WASM OS NODE // V86 ]</div>
         <h2 class="heading-display text-2xl md:text-4xl mb-5">
-          BOOT<br />FREEDOS
+          BOOT<br />LINUX
         </h2>
         <div class="accent-line mb-5" />
         <p class="text-xs text-muted leading-relaxed mb-6">
-          Browser x86 emulator running a tiny FreeDOS image through WebAssembly. No local WASM build step — loaded from the public v86 demo only when activated.
+          Browser x86 emulator booting a Linux ISO through WebAssembly. All assets served locally — no external dependencies.
         </p>
         <div class="grid grid-cols-2 gap-0 border border-border text-[10px] uppercase tracking-widest mb-4">
           <div class="p-3 border-r border-border">
             <div class="text-muted">PROFILE</div>
-            <div class="text-accent font-bold mt-1">FREEDOS</div>
+            <div class="text-accent font-bold mt-1">LINUX</div>
           </div>
           <div class="p-3">
             <div class="text-muted">PAYLOAD</div>
-            <div class="text-accent font-bold mt-1">0.6 MB</div>
+            <div class="text-accent font-bold mt-1">~5.4 MB</div>
           </div>
         </div>
         <button
           type="button"
           class="btn-primary w-full justify-center"
-          on:click={() => wasmOsLoaded = true}
+          on:click={bootWasmOs}
           disabled={wasmOsLoaded}
         >
           {wasmOsLoaded ? 'OS BOOTED' : 'BOOT WASM OS'}
@@ -510,14 +522,11 @@
         </div>
 
         {#if wasmOsLoaded}
-          <div class="relative z-10 h-[380px] overflow-hidden wasm-os-viewport">
-            <iframe
-              title="v86 FreeDOS WebAssembly OS emulator"
-              src="https://copy.sh/v86/?profile=freedos"
-              class="h-full w-full wasm-os-frame"
-              loading="lazy"
-            />
-            <div class="pointer-events-none absolute inset-0 wasm-os-tint" />
+          <div class="relative z-10 h-[520px] overflow-hidden wasm-os-viewport">
+            <div bind:this={wasmScreen} class="wasm-os-screen">
+              <div class="wasm-os-text-screen" />
+              <canvas class="hidden" />
+            </div>
           </div>
         {:else}
           <div class="relative z-10 flex h-[380px] flex-col justify-center p-6 md:p-8">
@@ -525,7 +534,7 @@
             <div class="text-[10px] uppercase tracking-widest text-white/65 space-y-2">
               <div>&gt; wasm runtime idle</div>
               <div>&gt; disk image detached</div>
-              <div>&gt; press boot to mount freedos</div>
+              <div>&gt; press boot to mount linux</div>
             </div>
           </div>
         {/if}
@@ -817,6 +826,46 @@
 
   <div class="section-border-anim section-border" />
 
+  <div class="webmcp-section py-16 md:py-24">
+    <div class="webmcp-title mb-8" style="visibility:hidden;">
+      <div class="tag-bracket mb-4">[ WEBMCP BEST PRACTICES // CHROME AI ]</div>
+      <div class="grid grid-cols-1 lg:grid-cols-[0.7fr_1.3fr] gap-6 lg:gap-12">
+        <h2 class="heading-display text-2xl md:text-4xl">
+          AGENT<br />TOOL DESIGN
+        </h2>
+        <p class="text-muted text-xs leading-relaxed max-w-2xl">
+          Best practices for building WebMCP tools that AI agents can use reliably.
+          Derived from Chrome's developer documentation on tool strategy, naming, compute, reliability, and evaluation-driven development.
+        </p>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 border border-border">
+      {#each webMcpPractices as practice, i}
+        <div class="webmcp-card grid grid-cols-1 md:grid-cols-[80px_200px_1fr] gap-0 {i < webMcpPractices.length - 1 ? 'border-b border-border' : ''}" style="visibility:hidden;">
+          <div class="p-5 md:border-r border-border bg-substrate">
+            <div class="heading-display text-2xl md:text-3xl text-accent">{practice.id}</div>
+          </div>
+          <div class="p-5 md:border-r border-border">
+            <div class="text-[10px] font-bold uppercase tracking-widest text-accent mb-2">{practice.title}</div>
+            <div class="text-xs font-bold uppercase tracking-wider text-ink">{practice.rule}</div>
+          </div>
+          <div class="p-5 bg-card">
+            <div class="text-xs text-muted leading-relaxed">{practice.detail}</div>
+          </div>
+        </div>
+      {/each}
+    </div>
+
+    <div class="grid grid-cols-3 gap-0 border-x border-b border-border text-[10px] uppercase tracking-widest">
+      <div class="p-3 border-r border-border text-muted">SOURCE: CHROME DEV DOCS</div>
+      <div class="p-3 border-r border-border text-muted">SPEC: WEBMCP</div>
+      <div class="p-3 text-accent font-bold">5 RULES</div>
+    </div>
+  </div>
+
+  <div class="section-border-anim section-border" />
+
   <div class="roles-section py-16 md:py-24">
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24">
       <div class="role-left" style="visibility:hidden;">
@@ -1018,19 +1067,25 @@
   .wasm-os-shell,
   .wasm-os-chrome,
   .wasm-os-viewport,
-  .wasm-os-frame {
+  .wasm-os-screen {
     background: #0a0a0a;
     color: #eaeaea;
   }
 
-  .wasm-os-frame {
-    border: 0;
-    color-scheme: dark;
-    filter: invert(1) grayscale(1) contrast(1.35) brightness(0.72);
+  .wasm-os-screen {
+    height: 100%;
+    overflow: hidden;
+    padding: 18px;
+    font: 13px/1.35 JetBrains Mono, monospace;
   }
 
-  .wasm-os-tint {
-    background: rgba(10, 10, 10, 0.18);
-    mix-blend-mode: multiply;
+  .wasm-os-screen :global(canvas) {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .wasm-os-text-screen {
+    white-space: pre;
   }
 </style>
