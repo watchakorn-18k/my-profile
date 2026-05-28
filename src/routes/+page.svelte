@@ -489,7 +489,7 @@
       </div>
     </div>
 
-    <figure class="hero-portrait card-industrial mx-auto w-full max-w-[min(100%,360px)] min-w-0 p-3 group 2xl:max-w-none" style="visibility:hidden;">
+    <figure class="hero-portrait card-industrial mx-auto w-full max-w-2xl min-w-0 p-3 group 2xl:max-w-none" style="visibility:hidden;">
       <div class="relative overflow-hidden">
         <img
           src="{base}/profile.png"
