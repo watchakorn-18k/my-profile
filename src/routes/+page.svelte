@@ -398,10 +398,14 @@
         size: input.byteLength,
         usage: 128 | 8 | 4,
       });
+      const outputBuffer = device.createBuffer({
+        size: input.byteLength,
+        usage: 8 | 4,
+      });
       device.queue.writeBuffer(buffer, 0, input);
 
       const encoder = device.createCommandEncoder();
-      encoder.copyBufferToBuffer(buffer, 0, buffer, 0, input.byteLength);
+      encoder.copyBufferToBuffer(buffer, 0, outputBuffer, 0, input.byteLength);
       device.queue.submit([encoder.finish()]);
       await device.queue.onSubmittedWorkDone();
 
@@ -439,7 +443,7 @@
 <svelte:window on:keydown={handleModalKeydown} />
 
 <section bind:this={container} class="max-w-content mx-auto px-4 md:px-8">
-  <div class="grid min-w-0 grid-cols-1 xl:grid-cols-[minmax(0,1fr)_minmax(320px,420px)] gap-10 xl:gap-16 py-12 md:py-24 lg:py-32 items-start">
+  <div class="grid min-w-0 grid-cols-1 2xl:grid-cols-[minmax(0,1fr)_minmax(320px,420px)] gap-10 2xl:gap-16 py-12 md:py-24 lg:py-32 items-start">
     <div class="min-w-0">
       <div class="hero-tag tag-bracket mb-6" style="visibility:hidden;">
         [ RESUME // FULL STACK DEVELOPER // FLUTTER + VUE + GOLANG ]
@@ -485,7 +489,7 @@
       </div>
     </div>
 
-    <figure class="hero-portrait card-industrial mx-auto w-full max-w-[min(100%,360px)] min-w-0 p-3 group lg:max-w-none" style="visibility:hidden;">
+    <figure class="hero-portrait card-industrial mx-auto w-full max-w-[min(100%,360px)] min-w-0 p-3 group 2xl:max-w-none" style="visibility:hidden;">
       <div class="relative overflow-hidden">
         <img
           src="{base}/profile.png"
