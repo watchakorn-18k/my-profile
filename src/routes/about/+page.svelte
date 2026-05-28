@@ -169,9 +169,9 @@
   <div class="py-16 md:py-24">
     <div class="about-tag tag-bracket mb-6">[ ABOUT // PROFILE ]</div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-12 lg:gap-16">
-      <div class="lg:col-span-2">
-        <h1 class="about-name heading-display text-3xl md:text-5xl mb-6">
+    <div class="grid min-w-0 grid-cols-1 lg:grid-cols-3 gap-12 lg:gap-16">
+      <div class="lg:col-span-2 min-w-0">
+        <h1 class="about-name heading-display safe-wrap text-3xl md:text-5xl mb-6">
           WATCHAKORN<br />BUDDEEWONG
         </h1>
         <div class="accent-line-anim accent-line mb-6" />
@@ -187,28 +187,28 @@
         </div>
       </div>
 
-      <div class="quick-ref border border-border p-6">
+      <div class="quick-ref min-w-0 border border-border p-5 md:p-6">
         <div class="tag-bracket mb-4">[ QUICK REF ]</div>
         <div class="space-y-3 text-xs">
-          <div class="flex justify-between border-b border-border pb-2">
+          <div class="grid grid-cols-[auto_minmax(0,1fr)] gap-4 border-b border-border pb-2">
             <span class="text-muted">LOCATION</span>
-            <span>NAKHON RATCHASIMA, TH</span>
+            <span class="text-right safe-wrap">NAKHON RATCHASIMA, TH</span>
           </div>
-          <div class="flex justify-between border-b border-border pb-2">
+          <div class="grid grid-cols-[auto_minmax(0,1fr)] gap-4 border-b border-border pb-2">
             <span class="text-muted">STATUS</span>
-            <span class="text-accent">EMPLOYED</span>
+            <span class="text-right text-accent safe-wrap">EMPLOYED</span>
           </div>
-          <div class="flex justify-between border-b border-border pb-2">
+          <div class="grid grid-cols-[auto_minmax(0,1fr)] gap-4 border-b border-border pb-2">
             <span class="text-muted">FOCUS</span>
-            <span>FULL STACK</span>
+            <span class="text-right safe-wrap">FULL STACK</span>
           </div>
-          <div class="flex justify-between border-b border-border pb-2">
+          <div class="grid grid-cols-[auto_minmax(0,1fr)] gap-4 border-b border-border pb-2">
             <span class="text-muted">TYPING</span>
-            <span>36 WPM / 90% ACC</span>
+            <span class="text-right safe-wrap">36 WPM / 90% ACC</span>
           </div>
-          <div class="flex justify-between">
+          <div class="grid grid-cols-[auto_minmax(0,1fr)] gap-4">
             <span class="text-muted">EMAIL</span>
-            <span>{links.email}</span>
+            <span class="text-right safe-wrap">{links.email}</span>
           </div>
         </div>
       </div>
@@ -254,7 +254,7 @@
           </div>
 
           <div class="lg:col-span-3">
-            <h3 class="heading-display text-xl md:text-2xl mb-4">
+            <h3 class="heading-display safe-wrap text-xl md:text-2xl mb-4">
               {exp.company}
             </h3>
             <div class="accent-line-anim accent-line mb-6" />
@@ -294,11 +294,11 @@
       <div class="space-y-2">
         {#each waketimes as wt}
           {#if wt.percent > 0}
-            <div class="waka-bar grid grid-cols-12 gap-3 items-center text-xs">
-              <div class="col-span-2 md:col-span-1 text-right text-muted truncate">
+            <div class="waka-bar grid grid-cols-[56px_minmax(0,1fr)_48px] md:grid-cols-[72px_minmax(0,1fr)_56px] gap-2 md:gap-3 items-center text-xs">
+              <div class="min-w-0 text-right text-muted truncate">
                 {wt.name}
               </div>
-              <div class="col-span-8 md:col-span-10">
+              <div class="min-w-0">
                 <div class="w-full bg-surface h-2">
                   <div
                     class="waka-fill bg-accent h-2"
@@ -307,7 +307,7 @@
                   />
                 </div>
               </div>
-              <div class="col-span-2 md:col-span-1 text-muted text-right">
+              <div class="text-muted text-right">
                 {wt.percent}%
               </div>
             </div>

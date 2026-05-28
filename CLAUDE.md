@@ -38,6 +38,8 @@ bun run check        # svelte-check type checking
 
 Industrial/brutalist aesthetic. Key design tokens in `app.css` via CSS custom properties (`--color-substrate`, `--color-ink`, `--color-accent`, etc.). Dark mode toggled by `.dark` class on `<html>`. Accent color: `#E61919`. Fonts: JetBrains Mono (body), Geist (sans), Archivo Black (display headings).
 
+Use Container Queries for component-level responsive layouts when component width matters more than viewport width. Existing helpers: `.cq-panel`, `.cq-card`, `.cq-grid`.
+
 ### Deployment
 
 GitHub Actions workflow (`.github/workflows/deploy.yml`) builds with Bun and deploys to GitHub Pages on push to `master`. `BASE_PATH` env var is set to repo name for correct asset paths on GH Pages.
@@ -45,6 +47,10 @@ GitHub Actions workflow (`.github/workflows/deploy.yml`) builds with Bun and dep
 ### Layout
 
 `+layout.ts` sets `prerender = true` globally. `+layout.svelte` provides nav bar (desktop + mobile), footer, and theme toggle. Navigation uses `$app/paths` `base` for GH Pages compatibility.
+
+### Animation Approach
+
+Homepage scroll reveal/parallax uses native CSS Scroll-driven Animations (`animation-timeline: view()`) with visible static fallback. Keep JS/GSAP only for non-scroll or complex timeline animation.
 
 ## Skills Usage Guide
 

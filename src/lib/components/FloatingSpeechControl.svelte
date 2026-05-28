@@ -69,7 +69,7 @@
 
 <button
   type="button"
-  class="fixed bottom-4 right-4 z-[60] border-2 border-ink bg-substrate px-4 py-3 font-mono text-[10px] font-bold uppercase tracking-widest text-ink shadow-[4px_4px_0_var(--color-ink)] transition-all hover:-translate-y-0.5 hover:bg-accent hover:text-white disabled:cursor-not-allowed disabled:opacity-50 md:bottom-6 md:right-6"
+  class="fixed bottom-3 right-3 z-[60] max-w-[calc(100vw-1.5rem)] border-2 border-ink bg-substrate px-3 py-2 font-mono text-[9px] font-bold uppercase tracking-widest text-ink shadow-[3px_3px_0_var(--color-ink)] transition-all hover:-translate-y-0.5 hover:bg-accent hover:text-white disabled:cursor-not-allowed disabled:opacity-50 md:bottom-6 md:right-6 md:px-4 md:py-3 md:text-[10px] md:shadow-[4px_4px_0_var(--color-ink)]"
   class:bg-accent={isSpeaking}
   class:text-white={isSpeaking}
   on:click={speakCurrentPage}

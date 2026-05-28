@@ -78,7 +78,7 @@
   <div class="py-16 md:py-24">
     <div class="repo-tag tag-bracket mb-6" style="visibility:hidden;">[ GITHUB // {data.repos.length} PUBLIC REPOS ]</div>
 
-    <h1 class="repo-title heading-display text-3xl md:text-5xl mb-4" style="visibility:hidden;">
+    <h1 class="repo-title heading-display safe-wrap text-3xl md:text-5xl mb-4" style="visibility:hidden;">
       PUBLIC <span class="text-accent">REPOSITORIES</span>
     </h1>
 
@@ -91,19 +91,19 @@
         href={data.profile.html_url}
         target="_blank"
         rel="noopener noreferrer"
-        class="repo-profile inline-grid grid-cols-[72px_1fr] gap-4 items-center border-2 border-ink bg-surface p-4 mb-4 hover:bg-accent hover:text-white transition-colors"
+        class="repo-profile inline-grid max-w-full grid-cols-[56px_minmax(0,1fr)] sm:grid-cols-[72px_minmax(0,1fr)] gap-4 items-center border-2 border-ink bg-surface p-4 mb-4 hover:bg-accent hover:text-white transition-colors"
         style="visibility:hidden;"
       >
         <img
           src={data.profile.avatar_url}
           alt="{data.profile.login} GitHub profile"
-          class="w-[72px] h-[72px] border border-border object-cover grayscale"
+          class="h-14 w-14 sm:w-[72px] sm:h-[72px] border border-border object-cover grayscale"
           loading="lazy"
           decoding="async"
         />
-        <div>
+        <div class="min-w-0">
           <div class="tag-bracket mb-2">[ GITHUB PROFILE ]</div>
-          <div class="heading-display text-lg md:text-xl">{data.profile.name ?? data.profile.login}</div>
+          <div class="heading-display safe-wrap text-lg md:text-xl">{data.profile.name ?? data.profile.login}</div>
           <div class="grid grid-cols-2 gap-2 mt-3 text-[10px] uppercase tracking-wider text-muted">
             <div>
               <span class="text-border">FOLLOWERS</span>
@@ -140,7 +140,7 @@
 
   <div class="py-8">
     {#each visibleRepos as repo, index}
-      <article class="repo-item grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 py-8 border-b border-border">
+      <article class="repo-item grid min-w-0 grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 py-8 border-b border-border">
         <div class="lg:col-span-1 flex items-start">
           <span class="repo-number heading-display text-2xl md:text-3xl text-border" style="visibility:hidden;">
             {String(index + 1).padStart(2, '0')}
@@ -164,9 +164,9 @@
           </a>
         </div>
 
-        <div class="lg:col-span-4 repo-info" style="visibility:hidden;">
+        <div class="lg:col-span-4 repo-info min-w-0" style="visibility:hidden;">
           <div class="flex flex-wrap items-center gap-2 mb-3">
-            <h2 class="heading-display text-lg md:text-xl">
+            <h2 class="heading-display safe-wrap text-lg md:text-xl">
               {repo.name}
             </h2>
             {#if repo.archived}
@@ -216,14 +216,14 @@
         </div>
 
         <div class="lg:col-span-3 repo-meta" style="visibility:hidden;">
-          <div class="grid grid-cols-2 gap-3 text-[10px] uppercase tracking-wider text-muted">
+          <div class="grid grid-cols-1 min-[380px]:grid-cols-2 gap-3 text-[10px] uppercase tracking-wider text-muted">
             <div class="border border-border p-3 bg-surface">
               <div class="text-border mb-1">STARS</div>
               <div class="heading-display text-lg text-ink">{repo.stargazers_count}</div>
             </div>
             <div class="border border-border p-3 bg-surface">
               <div class="text-border mb-1">UPDATED</div>
-              <div class="heading-display text-sm text-ink">{formatDate(repo.updated_at)}</div>
+              <div class="heading-display safe-wrap text-sm text-ink">{formatDate(repo.updated_at)}</div>
             </div>
           </div>
         </div>

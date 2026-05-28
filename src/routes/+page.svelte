@@ -3,9 +3,6 @@
   import { base } from "$app/paths";
   import { onMount, tick } from "svelte";
   import gsap from "gsap";
-  import { ScrollTrigger } from "gsap/ScrollTrigger";
-
-  gsap.registerPlugin(ScrollTrigger);
 
   let container: HTMLElement;
   let profileVideo: HTMLVideoElement | null = null;
@@ -153,10 +150,50 @@
   type ApiStatus = "idle" | "sending" | "done";
   type DevOpsStatus = "idle" | "building" | "deployed";
   type RedisMode = "cache" | "queue";
+  type TransformerStatus = "idle" | "loading" | "running" | "done" | "error";
+  type RouterResult = { label: string; score: number; signal: string };
+  type EmbeddingOutput = { tolist: () => number[] | number[][] };
+  type EmbeddingPipeline = (input: string | string[], options: { pooling: "mean"; normalize: true }) => Promise<EmbeddingOutput>;
 
   const devOpsSteps = ["DOCKER", "JENKINS", "AWS S3", "GCP", "CLOUDFLARE"];
   const dataStores = ["POSTGRES", "MONGODB", "REDIS", "S3 / GCP"];
   const testStages = ["UNIT", "INTEGRATION", "LOCUST", "RELEASE"];
+  const skillRoutes = [
+    { label: "API ENGINEER", signal: "golang api service fiber echo rest grpc backend endpoint" },
+    { label: "BACKEND", signal: "server business logic domain model middleware microservice" },
+    { label: "SYSTEM DESIGN", signal: "architecture scalability service boundary event driven distributed system" },
+    { label: "DATA ENGINEER", signal: "postgres mongodb sql analytics pipeline query schema database" },
+    { label: "DATABASE TUNING", signal: "index query optimization migration transaction performance relational nosql" },
+    { label: "CACHE / QUEUE", signal: "redis queue cache worker pubsub realtime job latency" },
+    { label: "REALTIME", signal: "websocket live update streaming notification chat presence event" },
+    { label: "FRONTEND UI", signal: "svelte vue react interface animation browser component" },
+    { label: "DESIGN SYSTEM", signal: "tailwind css theme component visual typography responsive layout" },
+    { label: "MOBILE APP", signal: "flutter dart mobile app ios android client store" },
+    { label: "PWA", signal: "progressive web app offline service worker install manifest" },
+    { label: "DESKTOP APP", signal: "electron tauri desktop native window cross platform app" },
+    { label: "DEVOPS", signal: "docker jenkins cicd cloudflare aws gcp deployment" },
+    { label: "PLATFORM", signal: "internal platform developer experience tooling automation scaffold" },
+    { label: "CLOUD STORAGE", signal: "aws s3 gcp bucket object storage file upload cdn" },
+    { label: "INFRASTRUCTURE", signal: "network server linux vm container orchestration provisioning terraform" },
+    { label: "SECURITY", signal: "authentication authorization token session validation rate limit secure api" },
+    { label: "APPSEC", signal: "xss csrf sql injection vulnerability secure coding owasp" },
+    { label: "AI / WASM", signal: "machine learning transformers webassembly browser inference embedding" },
+    { label: "LLM APP", signal: "chatbot prompt rag vector database agent retrieval generation" },
+    { label: "COMPUTER VISION", signal: "image detection classification ocr segmentation visual model" },
+    { label: "QA / LOAD TEST", signal: "unit integration locust load test benchmark reliability" },
+    { label: "OBSERVABILITY", signal: "logging metrics tracing monitoring alert dashboard incident latency" },
+    { label: "SRE", signal: "incident response uptime error budget reliability oncall resilience" },
+    { label: "PERFORMANCE", signal: "latency bundle optimization cache profiling lighthouse core web vitals" },
+    { label: "GAME DEV", signal: "game loop canvas webgl physics sprite input collision" },
+    { label: "WEB3", signal: "blockchain wallet smart contract token nft dapp solidity" },
+    { label: "IOT", signal: "sensor mqtt device edge firmware embedded telemetry" },
+    { label: "GIS / MAPS", signal: "map geolocation gps coordinate layer route spatial data" },
+    { label: "PAYMENTS", signal: "checkout payment stripe billing invoice subscription transaction" },
+    { label: "ECOMMERCE", signal: "cart product catalog order inventory checkout marketplace" },
+    { label: "CMS", signal: "content markdown blog editor publishing headless cms" },
+    { label: "CRM / ERP", signal: "customer sales inventory accounting workflow enterprise resource" },
+    { label: "AGENT TOOLS", signal: "mcp tool schema agent browser automation evaluation" },
+  ];
 
   let activeDemo: DemoMode = "mobile";
   let demoPulse = 0;
@@ -167,6 +204,12 @@
   let redisQueueDepth = 0;
   let dataRoute = 0;
   let testLoad = 0;
+  let transformerStatus: TransformerStatus = "idle";
+  let transformerInput = "Build a realtime backend with Redis queues, PostgreSQL, Docker, and Cloudflare deploys.";
+  let routerResults: RouterResult[] = [];
+  let transformerError = "";
+  let embeddingExtractor: EmbeddingPipeline | null = null;
+  let skillEmbeddings: number[][] | null = null;
   let apiTimeout: ReturnType<typeof setTimeout>;
   let devOpsTimeout: ReturnType<typeof setTimeout>;
 
@@ -177,6 +220,10 @@
   $: redisStatus = redisMode === "cache" ? (redisCacheWarm ? "cache hit" : "cache miss") : `${redisQueueDepth} queued`;
   $: dataStatus = dataStores[dataRoute];
   $: testStatus = `${testStages[Math.min(testLoad, testStages.length - 1)]} PASS`;
+  $: transformerStatusLabel = transformerStatus === "done" && embeddingExtractor ? "cached" : transformerStatus;
+  $: topRoute = routerResults[0];
+  $: transformerConfidence = topRoute ? `${Math.round(topRoute.score * 100)}%` : "--";
+  $: transformerLabel = topRoute?.label ?? "awaiting route";
 
   const resetTimedDemos = () => {
     clearTimeout(apiTimeout);
@@ -230,6 +277,66 @@
     }
   };
 
+  const asVector = (output: EmbeddingOutput) => {
+    const values = output.tolist();
+    return Array.isArray(values[0]) ? values[0] as number[] : values as number[];
+  };
+
+  const cosineSimilarity = (left: number[], right: number[]) => {
+    let dot = 0;
+    let leftMagnitude = 0;
+    let rightMagnitude = 0;
+
+    for (let i = 0; i < left.length; i += 1) {
+      const a = left[i] ?? 0;
+      const b = right[i] ?? 0;
+      dot += a * b;
+      leftMagnitude += a * a;
+      rightMagnitude += b * b;
+    }
+
+    return dot / (Math.sqrt(leftMagnitude) * Math.sqrt(rightMagnitude));
+  };
+
+  const runTransformerDemo = async () => {
+    const input = transformerInput.trim();
+    if (!input || transformerStatus === "loading" || transformerStatus === "running") return;
+
+    transformerError = "";
+    transformerStatus = embeddingExtractor ? "running" : "loading";
+
+    try {
+      if (!embeddingExtractor) {
+        const { pipeline } = await import("@huggingface/transformers");
+        embeddingExtractor = await pipeline(
+          "feature-extraction",
+          "Xenova/all-MiniLM-L6-v2"
+        ) as EmbeddingPipeline;
+      }
+
+      transformerStatus = "running";
+      if (!skillEmbeddings) {
+        const labels = skillRoutes.map((route) => route.signal);
+        skillEmbeddings = (await Promise.all(
+          labels.map(async (label) => asVector(await embeddingExtractor!(label, { pooling: "mean", normalize: true })))
+        ));
+      }
+
+      const inputEmbedding = asVector(await embeddingExtractor(input, { pooling: "mean", normalize: true }));
+      routerResults = skillRoutes
+        .map((route, index) => ({
+          ...route,
+          score: cosineSimilarity(inputEmbedding, skillEmbeddings?.[index] ?? []),
+        }))
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 5);
+      transformerStatus = "done";
+    } catch (error) {
+      transformerError = error instanceof Error ? error.message : "Model execution failed";
+      transformerStatus = "error";
+    }
+  };
+
   onMount(() => {
     const ctx = gsap.context(() => {
       const heroTl = gsap.timeline({ defaults: { duration: 0.7, ease: "power3.out" } });
@@ -244,151 +351,6 @@
         .from(".developer-console", { y: 24, autoAlpha: 0 }, "-=0.2")
         .from(".console-row", { x: -16, autoAlpha: 0, stagger: 0.08 }, "-=0.1");
 
-      ScrollTrigger.batch(".stat-item", {
-        onEnter: (elements) => {
-          gsap.from(elements, {
-            y: 40,
-            autoAlpha: 0,
-            duration: 0.6,
-            stagger: 0.1,
-            ease: "power2.out",
-          });
-        },
-        start: "top 85%",
-        once: true,
-      });
-
-      gsap.from(".mini-demo-title", {
-        scrollTrigger: {
-          trigger: ".mini-demo-section",
-          start: "top 80%",
-          once: true,
-        },
-        y: 30,
-        autoAlpha: 0,
-        duration: 0.6,
-        ease: "power2.out",
-      });
-
-      ScrollTrigger.batch(".mini-demo-control, .mini-demo-panel", {
-        onEnter: (elements) => {
-          gsap.from(elements, {
-            y: 40,
-            autoAlpha: 0,
-            duration: 0.55,
-            stagger: 0.08,
-            ease: "power2.out",
-          });
-        },
-        start: "top 85%",
-        once: true,
-      });
-
-      gsap.from(".skills-title", {
-        scrollTrigger: {
-          trigger: ".skills-section",
-          start: "top 80%",
-          once: true,
-        },
-        y: 30,
-        autoAlpha: 0,
-        duration: 0.6,
-        ease: "power2.out",
-      });
-
-      ScrollTrigger.batch(".skill-card", {
-        onEnter: (elements) => {
-          gsap.from(elements, {
-            y: 40,
-            autoAlpha: 0,
-            duration: 0.5,
-            stagger: 0.08,
-            ease: "power2.out",
-          });
-        },
-        start: "top 85%",
-        once: true,
-      });
-
-      gsap.from(".webmcp-title", {
-        scrollTrigger: {
-          trigger: ".webmcp-section",
-          start: "top 80%",
-          once: true,
-        },
-        y: 30,
-        autoAlpha: 0,
-        duration: 0.6,
-        ease: "power2.out",
-      });
-
-      ScrollTrigger.batch(".webmcp-card", {
-        onEnter: (elements) => {
-          gsap.from(elements, {
-            y: 40,
-            autoAlpha: 0,
-            duration: 0.5,
-            stagger: 0.08,
-            ease: "power2.out",
-          });
-        },
-        start: "top 85%",
-        once: true,
-      });
-
-      gsap.from(".role-left", {
-        scrollTrigger: {
-          trigger: ".roles-section",
-          start: "top 75%",
-          once: true,
-        },
-        x: -50,
-        autoAlpha: 0,
-        duration: 0.8,
-        ease: "power3.out",
-      });
-
-      gsap.from(".role-right", {
-        scrollTrigger: {
-          trigger: ".roles-section",
-          start: "top 75%",
-          once: true,
-        },
-        x: 50,
-        autoAlpha: 0,
-        duration: 0.8,
-        delay: 0.2,
-        ease: "power3.out",
-      });
-
-      gsap.utils.toArray<HTMLElement>(".accent-line-anim").forEach((el) => {
-        gsap.from(el, {
-          scrollTrigger: {
-            trigger: el,
-            start: "top 85%",
-            once: true,
-          },
-          scaleX: 0,
-          transformOrigin: "left center",
-          duration: 0.6,
-          ease: "power2.out",
-        });
-      });
-
-      gsap.utils.toArray<HTMLElement>(".section-border-anim").forEach((el) => {
-        gsap.from(el, {
-          scrollTrigger: {
-            trigger: el,
-            start: "top 90%",
-            once: true,
-          },
-          scaleX: 0,
-          transformOrigin: "left center",
-          duration: 0.8,
-          ease: "power2.inOut",
-        });
-      });
-
     }, container);
 
     return () => ctx.revert();
@@ -398,18 +360,18 @@
 <svelte:window on:keydown={handleModalKeydown} />
 
 <section bind:this={container} class="max-w-content mx-auto px-4 md:px-8">
-  <div class="grid grid-cols-1 lg:grid-cols-[1fr_420px] gap-12 lg:gap-16 py-16 md:py-24 lg:py-32 items-start">
-    <div>
+  <div class="grid min-w-0 grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(320px,420px)] gap-10 lg:gap-16 py-12 md:py-24 lg:py-32 items-start">
+    <div class="min-w-0">
       <div class="hero-tag tag-bracket mb-6" style="visibility:hidden;">
         [ RESUME // FULL STACK DEVELOPER // FLUTTER + VUE + GOLANG ]
       </div>
 
-      <h1 class="hero-title heading-display text-4xl md:text-6xl lg:text-8xl mb-8">
+      <h1 class="hero-title heading-display safe-wrap text-[clamp(2.5rem,15vw,4.5rem)] md:text-6xl lg:text-8xl mb-8">
         <span class="hero-name hero-glitch inline-block" data-text="WATCHAKORN" style="visibility:hidden;">WATCHAKORN</span><br />
         <span class="hero-accent hero-glitch text-accent inline-block" data-text="BUDDEEWONG" style="visibility:hidden;">BUDDEEWONG</span>
       </h1>
 
-      <div class="hero-desc max-w-xl mb-10" style="visibility:hidden;">
+      <div class="hero-desc max-w-xl min-w-0 mb-8 md:mb-10" style="visibility:hidden;">
         <p class="text-muted text-sm leading-relaxed">
           Full stack developer resume snapshot: Flutter mobile apps, Vue/Nuxt web platforms,
           and Golang backend services. Currently lead developer at Fakduai, architecting
@@ -417,34 +379,34 @@
         </p>
       </div>
 
-      <div class="hero-buttons flex flex-wrap gap-3 mb-10">
-        <a href="mailto:wk18k@proton.me" class="btn-primary" style="visibility:hidden;">
+      <div class="hero-buttons grid grid-cols-1 gap-3 mb-10 sm:flex sm:flex-wrap">
+        <a href="mailto:wk18k@proton.me" class="btn-primary w-full justify-center sm:w-auto" style="visibility:hidden;">
           CONTACT ME ↗
         </a>
-        <button type="button" on:click={() => showProfileVideo = true} class="btn-outline" style="visibility:hidden;">
+        <button type="button" on:click={() => showProfileVideo = true} class="btn-outline w-full justify-center sm:w-auto" style="visibility:hidden;">
           WATCH PROFILE
         </button>
-        <button type="button" on:click={downloadFile} class="btn-outline" style="visibility:hidden;">
+        <button type="button" on:click={downloadFile} class="btn-outline w-full justify-center sm:w-auto" style="visibility:hidden;">
           DOWNLOAD CV
         </button>
       </div>
 
-      <div class="developer-console card-industrial max-w-2xl p-4 md:p-5" style="visibility:hidden;">
+      <div class="developer-console cq-panel card-industrial max-w-2xl min-w-0 p-4 md:p-5" style="visibility:hidden;">
         <div class="tag-bracket mb-3">[ RESUME STACK // MOBILE + WEB + BACKEND ]</div>
         {#each stackSignals as item}
-          <div class="console-row grid grid-cols-[64px_1fr] md:grid-cols-[80px_1fr_140px] gap-3 border-t border-border py-3">
+          <div class="console-row console-row-cq grid grid-cols-[56px_minmax(0,1fr)] gap-3 border-t border-border py-3">
             <div class="text-accent text-[10px] font-bold tracking-widest">{item.layer}</div>
-            <div class="text-xs text-muted">{item.signal}</div>
-            <div class="hidden md:block text-xs text-muted text-right">{item.status}</div>
+            <div class="text-xs text-muted safe-wrap min-w-0">{item.signal}</div>
+            <div class="console-status hidden text-xs text-muted text-right">{item.status}</div>
           </div>
         {/each}
-        <div class="border-t border-border pt-3 text-[10px] uppercase tracking-widest text-muted">
+        <div class="border-t border-border pt-3 text-[10px] uppercase tracking-widest text-muted safe-wrap">
           &gt; flutter clients, vue dashboards, golang APIs — one resume, full pipeline
         </div>
       </div>
     </div>
 
-    <figure class="hero-portrait card-industrial p-3 group" style="visibility:hidden;">
+    <figure class="hero-portrait card-industrial mx-auto w-full max-w-[min(100%,360px)] min-w-0 p-3 group lg:max-w-none" style="visibility:hidden;">
       <div class="relative overflow-hidden">
         <img
           src="{base}/profile.png"
@@ -464,11 +426,11 @@
     </figure>
   </div>
 
-  <div class="section-border-anim section-border" />
+  <div class="section-border-anim section-border scroll-line" />
 
-  <div class="grid grid-cols-2 md:grid-cols-4 gap-0 border-b border-border">
+  <div class="cq-panel stats-bar grid grid-cols-2 gap-0 border-b border-border overflow-hidden">
     {#each stats as stat, i}
-      <div class="stat-item p-6 md:p-8 {i < stats.length - 1 ? 'border-r border-border' : ''}" style="visibility:hidden;">
+      <div class="stat-item scroll-reveal min-w-0 p-4 md:p-8 {i < stats.length - 1 ? 'border-r border-border' : ''}">
         <div class="heading-display text-3xl md:text-5xl text-accent mb-2">
           {stat.value}
         </div>
@@ -480,7 +442,7 @@
   </div>
 
   <div class="wasm-os-section py-16 md:py-24">
-    <div class="grid grid-cols-1 lg:grid-cols-[0.72fr_1.28fr] border border-border bg-card">
+    <div class="grid min-w-0 grid-cols-1 lg:grid-cols-[minmax(0,0.72fr)_minmax(0,1.28fr)] border border-border bg-card">
       <div class="p-5 md:p-6 lg:border-r border-border bg-substrate">
         <div class="tag-bracket mb-4">[ WASM OS NODE // V86 ]</div>
         <h2 class="heading-display text-2xl md:text-4xl mb-5">
@@ -510,7 +472,7 @@
         </button>
       </div>
 
-      <div class="relative min-h-[420px] overflow-hidden wasm-os-shell">
+      <div class="relative min-h-[420px] md:min-h-[620px] min-w-0 max-w-full overflow-hidden wasm-os-shell scroll-parallax-soft">
         <div class="absolute inset-0 opacity-20 pointer-events-none wasm-scanline" />
         <div class="relative z-10 grid grid-cols-[1fr_auto] border-b border-white/20 wasm-os-chrome">
           <div class="px-4 py-3">
@@ -522,14 +484,14 @@
         </div>
 
         {#if wasmOsLoaded}
-          <div class="relative z-10 h-[520px] overflow-hidden wasm-os-viewport">
+          <div class="relative z-10 h-[420px] md:h-[560px] max-w-full overflow-hidden wasm-os-viewport">
             <div bind:this={wasmScreen} class="wasm-os-screen">
               <div class="wasm-os-text-screen" />
               <canvas class="hidden" />
             </div>
           </div>
         {:else}
-          <div class="relative z-10 flex h-[380px] flex-col justify-center p-6 md:p-8">
+          <div class="relative z-10 flex h-[320px] md:h-[380px] flex-col justify-center p-6 md:p-8">
             <div class="heading-display text-5xl md:text-7xl text-accent mb-4">86</div>
             <div class="text-[10px] uppercase tracking-widest text-white/65 space-y-2">
               <div>&gt; wasm runtime idle</div>
@@ -542,10 +504,10 @@
     </div>
   </div>
 
-  <div class="section-border-anim section-border" />
+  <div class="section-border-anim section-border scroll-line" />
 
   <div class="mini-demo-section py-16 md:py-24">
-    <div class="mini-demo-title mb-8" style="visibility:hidden;">
+    <div class="mini-demo-title scroll-reveal mb-8">
       <div class="tag-bracket mb-4">[ INTERACTIVE MINI LAB ]</div>
       <div class="grid grid-cols-1 lg:grid-cols-[0.7fr_1.3fr] gap-6 lg:gap-12">
         <h2 class="heading-display text-2xl md:text-4xl">
@@ -558,8 +520,8 @@
       </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-[0.8fr_1.2fr] border border-border">
-      <div class="mini-demo-control p-5 md:p-6 lg:border-r border-border bg-substrate" style="visibility:hidden;">
+    <div class="grid min-w-0 grid-cols-1 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] border border-border">
+      <div class="mini-demo-control scroll-reveal p-5 md:p-6 lg:border-r border-border bg-substrate">
         <div class="tag-bracket mb-4">[ SELECT PROGRAM ]</div>
         <div class="grid grid-cols-1 gap-2 mb-6">
           {#each demoModes as mode}
@@ -593,10 +555,10 @@
         </div>
       </div>
 
-      <div class="mini-demo-panel p-5 md:p-6 bg-card" style="visibility:hidden;">
+      <div class="mini-demo-panel scroll-reveal cq-panel min-w-0 overflow-hidden p-4 md:p-6 bg-card">
         {#key activeDemo + demoPulse}
           {#if activeDemo === 'mobile'}
-            <div class="grid grid-cols-1 md:grid-cols-[220px_1fr] gap-6 items-center">
+            <div class="demo-mobile-grid grid grid-cols-1 gap-6 items-center">
               <div class="border-2 border-ink p-3 bg-substrate max-w-[240px] mx-auto w-full">
                 <div class="h-5 border-b border-border mb-3 flex items-center justify-between text-[9px] text-muted">
                   <span>09:{(demoPulse % 60).toString().padStart(2, '0')}</span>
@@ -625,11 +587,11 @@
             </div>
           {:else if activeDemo === 'web'}
             <div class="border border-border bg-substrate">
-              <div class="flex items-center justify-between border-b border-border px-4 py-3">
+              <div class="flex flex-col min-[380px]:flex-row min-[380px]:items-center justify-between gap-2 border-b border-border px-4 py-3">
                 <div class="tag-bracket">[ VUE OPS DASHBOARD ]</div>
                 <button type="button" class="text-accent text-[10px] font-bold tracking-widest" on:click={() => playDemo('web')}>REFRESH ↗</button>
               </div>
-              <div class="grid grid-cols-3 border-b border-border text-center text-[10px] uppercase tracking-widest">
+              <div class="grid grid-cols-1 min-[380px]:grid-cols-3 border-b border-border text-center text-[10px] uppercase tracking-widest">
                 {#each ['ORDERS', 'USERS', 'LATENCY'] as metric, i}
                   <div class="p-4 {i < 2 ? 'border-r border-border' : ''}">
                     <div class="text-muted">{metric}</div>
@@ -639,9 +601,9 @@
               </div>
               <div class="p-4 space-y-2">
                 {#each ['render product table', 'hydrate dashboard state', 'ship responsive layout'] as row, i}
-                  <div class="grid grid-cols-[32px_1fr_72px] gap-3 border border-border p-3 text-[10px] uppercase tracking-widest {highlightedRow === i ? 'bg-accent text-white border-accent' : 'bg-card'}">
+                  <div class="grid grid-cols-[32px_minmax(0,1fr)_auto] gap-3 border border-border p-3 text-[10px] uppercase tracking-widest {highlightedRow === i ? 'bg-accent text-white border-accent' : 'bg-card'}">
                     <span>0{i + 1}</span>
-                    <span>{row}</span>
+                    <span class="min-w-0 safe-wrap">{row}</span>
                     <span class="text-right">{highlightedRow === i ? 'ACTIVE' : 'IDLE'}</span>
                   </div>
                 {/each}
@@ -649,11 +611,11 @@
             </div>
           {:else if activeDemo === 'api'}
             <div>
-              <div class="flex items-center justify-between mb-5">
+              <div class="flex flex-col min-[380px]:flex-row min-[380px]:items-center justify-between gap-3 mb-5">
                 <div class="tag-bracket">[ API ROUTE SIMULATOR ]</div>
                 <button type="button" class="btn-primary" on:click={() => playDemo('api')}>SEND REQUEST</button>
               </div>
-              <svg viewBox="0 0 720 180" class="w-full border border-border bg-substrate" role="img" aria-label="Client to gateway to Go service to Postgres route">
+              <svg viewBox="0 0 720 180" class="w-full max-w-full border border-border bg-substrate" role="img" aria-label="Client to gateway to Go service to Postgres route">
                 <line x1="110" y1="90" x2="610" y2="90" stroke="currentColor" stroke-width="2" class="{apiStatus === 'idle' ? 'text-border' : 'text-accent'}" stroke-dasharray={apiStatus === 'sending' ? '12 10' : '0'} />
                 {#each ['CLIENT', 'GATEWAY', 'GO SERVICE', 'POSTGRES'] as node, i}
                   <g transform="translate({80 + i * 180} 55)">
@@ -662,7 +624,7 @@
                   </g>
                 {/each}
               </svg>
-              <div class="grid grid-cols-3 gap-0 border-x border-b border-border text-[10px] uppercase tracking-widest">
+              <div class="grid grid-cols-1 min-[380px]:grid-cols-3 gap-0 border-x border-b border-border text-[10px] uppercase tracking-widest safe-wrap">
                 <div class="p-3 border-r border-border text-muted">METHOD: POST</div>
                 <div class="p-3 border-r border-border text-muted">RUNTIME: GOLANG</div>
                 <div class="p-3 text-accent font-bold">{apiStatus === 'done' ? '200 OK' : apiStatus === 'sending' ? 'PENDING' : 'READY'}</div>
@@ -670,13 +632,13 @@
             </div>
           {:else if activeDemo === 'devops'}
             <div>
-              <div class="flex items-center justify-between mb-5 gap-4">
+              <div class="flex flex-col min-[380px]:flex-row min-[380px]:items-center min-[380px]:justify-between gap-4 mb-5">
                 <div class="tag-bracket">[ DEVOPS DEPLOY GAME ]</div>
                 <button type="button" class="btn-primary" on:click={() => playDemo('devops')}>RUN DEPLOY</button>
               </div>
-              <div class="grid grid-cols-1 md:grid-cols-5 gap-0 border border-border bg-substrate">
+              <div class="demo-devops-grid grid grid-cols-1 gap-0 border border-border bg-substrate">
                 {#each devOpsSteps as step, i}
-                  <div class="p-4 border-b md:border-b-0 md:border-r border-border last:border-r-0 {i <= devOpsProgress ? 'bg-accent text-white' : 'bg-card text-ink'}">
+                  <div class="demo-devops-step p-4 border-b border-border {i <= devOpsProgress ? 'bg-accent text-white' : 'bg-card text-ink'}">
                     <div class="text-[10px] font-bold uppercase tracking-widest mb-8">0{i + 1}</div>
                     <div class="heading-display text-lg md:text-xl break-words">{step}</div>
                     <div class="text-[9px] uppercase tracking-widest mt-3 opacity-75">
@@ -685,7 +647,7 @@
                   </div>
                 {/each}
               </div>
-              <div class="grid grid-cols-2 md:grid-cols-4 gap-0 border-x border-b border-border text-[10px] uppercase tracking-widest">
+              <div class="demo-footer-4 grid grid-cols-2 gap-0 border-x border-b border-border text-[10px] uppercase tracking-widest">
                 <div class="p-3 border-r border-border text-muted">IMAGE: DOCKER</div>
                 <div class="p-3 border-r border-border text-muted">PIPELINE: JENKINS</div>
                 <div class="p-3 border-r border-border text-muted">STORAGE: AWS S3 / GCP</div>
@@ -694,16 +656,16 @@
             </div>
           {:else if activeDemo === 'data'}
             <div>
-              <div class="flex items-center justify-between mb-5 gap-4">
+              <div class="flex flex-col min-[380px]:flex-row min-[380px]:items-center min-[380px]:justify-between gap-4 mb-5">
                 <div>
                   <div class="tag-bracket mb-2">[ DATA ROUTING GAME ]</div>
                   <div class="text-xs text-muted uppercase tracking-widest">ACTIVE STORE: {dataStatus}</div>
                 </div>
                 <button type="button" class="btn-primary" on:click={() => playDemo('data')}>ROUTE DATA</button>
               </div>
-              <div class="grid grid-cols-1 md:grid-cols-4 gap-0 border border-border bg-substrate">
+              <div class="demo-4col-grid grid grid-cols-1 gap-0 border border-border bg-substrate">
                 {#each dataStores as store, i}
-                  <div class="p-5 border-b md:border-b-0 md:border-r border-border last:border-r-0 {i === dataRoute ? 'bg-accent text-white' : 'bg-card text-ink'}">
+                  <div class="demo-4col-step p-5 border-b border-border {i === dataRoute ? 'bg-accent text-white' : 'bg-card text-ink'}">
                     <div class="text-[10px] font-bold uppercase tracking-widest mb-8">DB-0{i + 1}</div>
                     <div class="heading-display text-xl break-words">{store}</div>
                     <div class="text-[9px] uppercase tracking-widest mt-3 opacity-75">
@@ -712,7 +674,7 @@
                   </div>
                 {/each}
               </div>
-              <div class="grid grid-cols-3 gap-0 border-x border-b border-border text-[10px] uppercase tracking-widest">
+              <div class="grid grid-cols-1 min-[380px]:grid-cols-3 gap-0 border-x border-b border-border text-[10px] uppercase tracking-widest safe-wrap">
                 <div class="p-3 border-r border-border text-muted">SCHEMA: ATLAS / SQL</div>
                 <div class="p-3 border-r border-border text-muted">FLOW: API WRITE</div>
                 <div class="p-3 text-accent font-bold">{dataStatus}</div>
@@ -720,23 +682,23 @@
             </div>
           {:else if activeDemo === 'testing'}
             <div>
-              <div class="flex items-center justify-between mb-5 gap-4">
+              <div class="flex flex-col min-[380px]:flex-row min-[380px]:items-center min-[380px]:justify-between gap-4 mb-5">
                 <div>
                   <div class="tag-bracket mb-2">[ TEST / LOAD GAME ]</div>
                   <div class="text-xs text-muted uppercase tracking-widest">CHECKPOINT: {testStatus}</div>
                 </div>
                 <button type="button" class="btn-primary" on:click={() => playDemo('testing')}>RUN CHECK</button>
               </div>
-              <div class="grid grid-cols-1 md:grid-cols-4 gap-0 border border-border bg-substrate">
+              <div class="demo-4col-grid grid grid-cols-1 gap-0 border border-border bg-substrate">
                 {#each testStages as stage, i}
-                  <div class="p-5 border-b md:border-b-0 md:border-r border-border last:border-r-0 {i <= testLoad ? 'bg-accent text-white' : 'bg-card text-ink'}">
+                  <div class="demo-4col-step p-5 border-b border-border {i <= testLoad ? 'bg-accent text-white' : 'bg-card text-ink'}">
                     <div class="text-[10px] font-bold uppercase tracking-widest mb-8">QA-0{i + 1}</div>
                     <div class="heading-display text-xl break-words">{stage}</div>
                     <div class="text-[9px] uppercase tracking-widest mt-3 opacity-75">{i <= testLoad ? 'PASS' : 'WAIT'}</div>
                   </div>
                 {/each}
               </div>
-              <div class="grid grid-cols-3 gap-0 border-x border-b border-border text-[10px] uppercase tracking-widest">
+              <div class="grid grid-cols-1 min-[380px]:grid-cols-3 gap-0 border-x border-b border-border text-[10px] uppercase tracking-widest safe-wrap">
                 <div class="p-3 border-r border-border text-muted">UNIT: SERVICE LOGIC</div>
                 <div class="p-3 border-r border-border text-muted">LOAD: LOCUST</div>
                 <div class="p-3 text-accent font-bold">{testStatus}</div>
@@ -749,19 +711,19 @@
                   <div class="tag-bracket mb-2">[ REDIS CACHE / QUEUE GAME ]</div>
                   <div class="text-xs text-muted uppercase tracking-widest">MODE: {redisMode} // LATENCY: {redisLatency}</div>
                 </div>
-                <div class="flex gap-2">
+                <div class="grid grid-cols-1 min-[380px]:grid-cols-2 gap-2">
                   <button type="button" class="btn-outline" on:click={() => playRedis('cache')}>CACHE LOOKUP</button>
                   <button type="button" class="btn-primary" on:click={() => playRedis('queue')}>PUSH JOB</button>
                 </div>
               </div>
 
-              <div class="grid grid-cols-1 md:grid-cols-[1fr_160px_1fr] gap-0 border border-border bg-substrate">
-                <div class="p-5 border-b md:border-b-0 md:border-r border-border">
+              <div class="demo-redis-grid grid grid-cols-1 gap-0 border border-border bg-substrate">
+                <div class="demo-redis-cell p-5 border-b border-border">
                   <div class="tag-bracket mb-3">[ API READ ]</div>
                   <div class="heading-display text-2xl mb-3">GET /FEED</div>
                   <div class="text-xs text-muted leading-relaxed">Request checks Redis before touching database.</div>
                 </div>
-                <div class="p-5 border-b md:border-b-0 md:border-r border-border {redisCacheWarm || redisQueueDepth > 0 ? 'bg-accent text-white' : 'bg-card text-ink'}">
+                <div class="demo-redis-cell p-5 border-b border-border {redisCacheWarm || redisQueueDepth > 0 ? 'bg-accent text-white' : 'bg-card text-ink'}">
                   <div class="tag-bracket mb-3 {redisCacheWarm || redisQueueDepth > 0 ? 'text-white' : ''}">[ REDIS ]</div>
                   <div class="heading-display text-3xl mb-3">{redisMode === 'cache' ? (redisCacheWarm ? 'HIT' : 'MISS') : redisQueueDepth}</div>
                   <div class="text-[10px] uppercase tracking-widest opacity-75">{redisMode === 'cache' ? 'CACHE STATE' : 'QUEUE DEPTH'}</div>
@@ -778,7 +740,7 @@
                 </div>
               </div>
 
-              <div class="grid grid-cols-3 gap-0 border-x border-b border-border text-[10px] uppercase tracking-widest">
+              <div class="grid grid-cols-1 min-[380px]:grid-cols-3 gap-0 border-x border-b border-border text-[10px] uppercase tracking-widest safe-wrap">
                 <div class="p-3 border-r border-border text-muted">CACHE: {redisCacheWarm ? 'WARM' : 'COLD'}</div>
                 <div class="p-3 border-r border-border text-muted">QUEUE: {redisQueueDepth} MSG</div>
                 <div class="p-3 text-accent font-bold">{redisMode === 'cache' ? (redisCacheWarm ? 'FAST PATH' : 'DB FALLBACK') : 'WORKER BUFFER'}</div>
@@ -790,28 +752,114 @@
     </div>
   </div>
 
-  <div class="section-border-anim section-border" />
+  <div class="section-border-anim section-border scroll-line" />
+
+  <div class="transformers-section py-16 md:py-24">
+    <div class="transformers-title scroll-reveal tag-bracket mb-8">[ LOCAL AI NODE // TRANSFORMERS.JS V3 ]</div>
+    <div class="grid min-w-0 grid-cols-1 lg:grid-cols-[minmax(0,0.72fr)_minmax(0,1.28fr)] border border-border bg-card">
+      <div class="transformers-control scroll-reveal p-5 md:p-6 lg:border-r border-border bg-substrate">
+        <div class="tag-bracket mb-4">[ BROWSER ML // NO BACKEND ]</div>
+        <h2 class="heading-display text-2xl md:text-4xl mb-5">
+          SEMANTIC<br />ROUTER
+        </h2>
+        <div class="accent-line mb-5" />
+        <p class="text-xs text-muted leading-relaxed mb-5">
+          Transformers.js turns requirements into embeddings, compares them against portfolio skill vectors, then routes the work to the best technical layer.
+        </p>
+        <div class="border border-border bg-card">
+          <div class="grid grid-cols-[1fr_auto] border-b border-border text-[10px] uppercase tracking-widest">
+            <div class="px-3 py-2 text-muted">INPUT BUFFER</div>
+            <div class="border-l border-border px-3 py-2 text-accent font-bold">UTF-8</div>
+          </div>
+          <textarea
+            bind:value={transformerInput}
+            class="w-full min-h-[118px] resize-none p-4 font-mono text-xs uppercase leading-relaxed tracking-widest outline-none placeholder:text-muted"
+            style="background:#0a0a0a;color:#eaeaea;caret-color:#e61919;"
+            aria-label="Skill routing input"
+            placeholder="TYPE SIGNAL TEXT..."
+          />
+          <div class="grid grid-cols-[1fr_auto] border-t border-border text-[10px] uppercase tracking-widest">
+            <div class="px-3 py-2 text-muted">CHARS: {transformerInput.length}</div>
+            <button
+              type="button"
+              class="border-l border-border px-4 py-2 font-bold text-accent transition-colors hover:bg-accent hover:text-white disabled:cursor-not-allowed disabled:text-muted disabled:hover:bg-transparent"
+              on:click={runTransformerDemo}
+              disabled={transformerStatus === 'loading' || transformerStatus === 'running' || !transformerInput.trim()}
+            >
+              {transformerStatus === 'loading' ? 'LOADING' : transformerStatus === 'running' ? 'RUNNING' : 'EXECUTE'}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="transformers-panel scroll-reveal min-w-0 overflow-hidden p-4 md:p-6 bg-card">
+        <div class="grid grid-cols-1 min-[380px]:grid-cols-3 gap-0 border border-border text-[10px] uppercase tracking-widest mb-5 safe-wrap">
+          <div class="p-3 border-r border-border">
+            <div class="text-muted">STATUS</div>
+            <div class="text-accent font-bold mt-1">{transformerStatusLabel}</div>
+          </div>
+          <div class="p-3 border-r border-border">
+            <div class="text-muted">MODEL</div>
+            <div class="text-accent font-bold mt-1">MINILM</div>
+          </div>
+          <div class="p-3">
+            <div class="text-muted">DEVICE</div>
+            <div class="text-accent font-bold mt-1">WASM</div>
+          </div>
+        </div>
+
+        <div class="border border-border bg-substrate p-5 min-h-[220px]">
+          <div class="tag-bracket mb-4">[ INFERENCE OUTPUT ]</div>
+          {#if transformerStatus === 'error'}
+            <div class="heading-display text-3xl md:text-5xl text-accent mb-4">ERR</div>
+            <div class="text-xs uppercase tracking-widest text-muted break-words">{transformerError}</div>
+          {:else}
+            <div class="heading-display text-3xl md:text-5xl text-accent mb-4">{transformerLabel}</div>
+            <div class="grid grid-cols-[minmax(0,6rem)_minmax(0,1fr)] sm:grid-cols-[8rem_minmax(0,1fr)] gap-0 border border-border text-[10px] uppercase tracking-widest mb-4 safe-wrap">
+              <div class="p-3 border-r border-border text-muted">MATCH</div>
+              <div class="p-3 font-bold">{transformerConfidence}</div>
+              <div class="p-3 border-r border-t border-border text-muted">PIPELINE</div>
+              <div class="p-3 border-t border-border font-bold">FEATURE-EXTRACTION</div>
+              <div class="p-3 border-r border-t border-border text-muted">RUNTIME</div>
+              <div class="p-3 border-t border-border font-bold">TRANSFORMERS.JS</div>
+            </div>
+            <div class="space-y-2">
+              {#each routerResults as route, index}
+                <div class="grid grid-cols-[2rem_minmax(0,1fr)_3rem] sm:grid-cols-[2.5rem_minmax(0,1fr)_4rem] gap-0 border border-border text-[10px] uppercase tracking-widest {index === 0 ? 'bg-accent text-white border-accent' : 'bg-card text-muted'}">
+                  <div class="p-2 border-r border-border">0{index + 1}</div>
+                  <div class="p-2 border-r border-border font-bold safe-wrap min-w-0">{route.label}</div>
+                  <div class="p-2 font-bold">{Math.round(route.score * 100)}%</div>
+                </div>
+              {/each}
+            </div>
+          {/if}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-border-anim section-border scroll-line" />
 
   <div class="skills-section py-16 md:py-24">
-    <div class="skills-title tag-bracket mb-8" style="visibility:hidden;">[ TECHNICAL STACK ]</div>
-    <div class="grid grid-cols-1 lg:grid-cols-[0.75fr_1.25fr] gap-0 border border-border">
-      <div class="skill-card p-6 md:p-8 lg:border-r border-border bg-substrate" style="visibility:hidden;">
+    <div class="skills-title scroll-reveal tag-bracket mb-8">[ TECHNICAL STACK ]</div>
+    <div class="grid min-w-0 grid-cols-1 lg:grid-cols-[minmax(0,0.75fr)_minmax(0,1.25fr)] gap-0 border border-border">
+      <div class="skill-card scroll-reveal p-6 md:p-8 lg:border-r border-border bg-substrate">
         <div class="tag-bracket mb-6">[ OPERATING LAYERS ]</div>
         <div class="space-y-4">
           {#each stackSignals as signal}
-            <div class="grid grid-cols-[3rem_1fr] gap-4 border-t border-border pt-4">
+            <div class="grid grid-cols-[3rem_minmax(0,1fr)] gap-4 border-t border-border pt-4">
               <div class="text-accent text-[10px] font-bold tracking-widest">{signal.layer}</div>
               <div>
-                <div class="text-xs font-bold uppercase tracking-wider text-ink">{signal.signal}</div>
+                <div class="text-xs font-bold uppercase tracking-wider text-ink safe-wrap">{signal.signal}</div>
                 <div class="text-[10px] uppercase tracking-widest text-muted mt-1">{signal.status}</div>
               </div>
             </div>
           {/each}
         </div>
       </div>
-      <div class="grid grid-cols-1 sm:grid-cols-2">
+      <div class="cq-panel skill-grid grid grid-cols-1">
         {#each skills as skill}
-          <div class="skill-card p-6 border-t border-border sm:[&:nth-child(-n+2)]:border-t-0 sm:[&:nth-child(odd)]:border-r" style="visibility:hidden;">
+          <div class="skill-card scroll-reveal skill-card-cq p-6 border-t border-border">
             <div class="text-accent text-[10px] font-bold tracking-widest mb-3">
               {skill.category}
             </div>
@@ -824,10 +872,10 @@
     </div>
   </div>
 
-  <div class="section-border-anim section-border" />
+  <div class="section-border-anim section-border scroll-line" />
 
   <div class="webmcp-section py-16 md:py-24">
-    <div class="webmcp-title mb-8" style="visibility:hidden;">
+    <div class="webmcp-title scroll-reveal mb-8">
       <div class="tag-bracket mb-4">[ WEBMCP BEST PRACTICES // CHROME AI ]</div>
       <div class="grid grid-cols-1 lg:grid-cols-[0.7fr_1.3fr] gap-6 lg:gap-12">
         <h2 class="heading-display text-2xl md:text-4xl">
@@ -840,15 +888,15 @@
       </div>
     </div>
 
-    <div class="grid grid-cols-1 border border-border">
+    <div class="cq-panel grid grid-cols-1 border border-border">
       {#each webMcpPractices as practice, i}
-        <div class="webmcp-card grid grid-cols-1 md:grid-cols-[80px_200px_1fr] gap-0 {i < webMcpPractices.length - 1 ? 'border-b border-border' : ''}" style="visibility:hidden;">
-          <div class="p-5 md:border-r border-border bg-substrate">
+        <div class="webmcp-card scroll-reveal webmcp-card-cq grid grid-cols-1 gap-0 {i < webMcpPractices.length - 1 ? 'border-b border-border' : ''}">
+          <div class="webmcp-id p-5 border-border bg-substrate">
             <div class="heading-display text-2xl md:text-3xl text-accent">{practice.id}</div>
           </div>
-          <div class="p-5 md:border-r border-border">
+          <div class="webmcp-rule p-5 border-border">
             <div class="text-[10px] font-bold uppercase tracking-widest text-accent mb-2">{practice.title}</div>
-            <div class="text-xs font-bold uppercase tracking-wider text-ink">{practice.rule}</div>
+            <div class="text-xs font-bold uppercase tracking-wider text-ink safe-wrap">{practice.rule}</div>
           </div>
           <div class="p-5 bg-card">
             <div class="text-xs text-muted leading-relaxed">{practice.detail}</div>
@@ -857,35 +905,35 @@
       {/each}
     </div>
 
-    <div class="grid grid-cols-3 gap-0 border-x border-b border-border text-[10px] uppercase tracking-widest">
+    <div class="grid grid-cols-1 min-[380px]:grid-cols-3 gap-0 border-x border-b border-border text-[10px] uppercase tracking-widest safe-wrap">
       <div class="p-3 border-r border-border text-muted">SOURCE: CHROME DEV DOCS</div>
       <div class="p-3 border-r border-border text-muted">SPEC: WEBMCP</div>
       <div class="p-3 text-accent font-bold">5 RULES</div>
     </div>
   </div>
 
-  <div class="section-border-anim section-border" />
+  <div class="section-border-anim section-border scroll-line" />
 
   <div class="roles-section py-16 md:py-24">
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24">
-      <div class="role-left" style="visibility:hidden;">
+    <div class="grid min-w-0 grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24">
+      <div class="role-left scroll-reveal-left">
         <div class="tag-bracket mb-4">[ CURRENT ROLE // 2026 ]</div>
         <h2 class="heading-display text-2xl md:text-3xl mb-4">
           FAKDUAI LOGISTICS<br/>& DIGITAL PLATFORM
         </h2>
-        <div class="accent-line-anim accent-line mb-6" />
+        <div class="accent-line-anim accent-line scroll-line mb-6" />
         <p class="text-muted text-xs leading-relaxed">
           Lead developer and architect for Pinto social media super app and mobile POS system.
           Designed full project architecture, mentored juniors, shipped to both App Store
           and Google Play. Built with Go (Echo), Flutter BLoC, Vue/Nuxt, PostgreSQL, MongoDB, Redis.
         </p>
       </div>
-      <div class="role-right" style="visibility:hidden;">
+      <div class="role-right scroll-reveal-right">
         <div class="tag-bracket mb-4">[ PREVIOUS // JUN-DEC 2024 ]</div>
         <h2 class="heading-display text-2xl md:text-3xl mb-4">
           IBOTNOI
         </h2>
-        <div class="accent-line-anim accent-line mb-6" />
+        <div class="accent-line-anim accent-line scroll-line mb-6" />
         <p class="text-muted text-xs leading-relaxed">
           Backend developer on large-scale educational platform with millions of users.
           Migrated Python services to Go (Fiber) reducing crashes by 50%.
@@ -905,7 +953,7 @@
       on:click={closeProfileVideo}
     />
     <div
-      class="relative w-full max-w-6xl border-2 border-ink bg-substrate shadow-[14px_14px_0_var(--color-accent)]"
+      class="relative w-full max-w-[calc(100vw-2rem)] md:max-w-6xl border-2 border-ink bg-substrate shadow-[6px_6px_0_var(--color-accent)] md:shadow-[14px_14px_0_var(--color-accent)]"
       role="dialog"
       aria-modal="true"
       aria-label="Profile video"
@@ -956,7 +1004,7 @@
                 class="w-full h-2 block accent-accent cursor-pointer"
                 on:input={seekProfileVideo}
               />
-              <div class="grid grid-cols-[auto_1fr_auto_auto] gap-3 p-2 items-center text-[10px] uppercase tracking-widest">
+              <div class="grid grid-cols-2 sm:grid-cols-[auto_1fr_auto_auto] gap-2 sm:gap-3 p-2 items-center text-[9px] sm:text-[10px] uppercase tracking-widest">
                 <button
                   type="button"
                   class="font-bold hover:text-accent active:translate-y-px transition-colors"
@@ -1013,6 +1061,21 @@
 
 
 <style>
+  .hero-portrait {
+    width: min(100%, clamp(19rem, 72vw, 28rem)) !important;
+    max-width: 28rem !important;
+    margin-inline: auto !important;
+  }
+
+  @media (min-width: 1024px) {
+    .hero-portrait {
+      width: min(100%, 24rem) !important;
+      max-width: 24rem !important;
+      margin-inline: 0 !important;
+      justify-self: end;
+    }
+  }
+
   .hero-glitch {
     position: relative;
     isolation: isolate;
@@ -1072,20 +1135,30 @@
     color: #eaeaea;
   }
 
+  .wasm-os-viewport {
+    padding: 0;
+  }
+
   .wasm-os-screen {
+    position: relative;
     height: 100%;
     overflow: hidden;
-    padding: 18px;
+    padding: 0;
     font: 13px/1.35 JetBrains Mono, monospace;
   }
 
   .wasm-os-screen :global(canvas) {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
+    display: block !important;
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover;
   }
 
   .wasm-os-text-screen {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
     white-space: pre;
   }
+
 </style>

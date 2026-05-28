@@ -8,18 +8,18 @@
     {#each waketimes as waketime}
       {#if waketime.percent > 0}
         <div
-          class="flex gap-6 items-center justify-center w-11/12 xl:w-[40rem]"
+          class="grid w-full max-w-[40rem] grid-cols-[24px_minmax(0,7rem)_minmax(0,1fr)_auto] items-center gap-2 px-2 md:gap-4"
         >
           <img
             src={`https://icon.icepanel.io/Technology/svg/${waketime.name}.svg`}
             class={`w-6`}
             alt=""
           />
-          <p class={`w-32 text-start text-xs xl:text-lg`}>
+          <p class={`min-w-0 truncate text-start text-xs xl:text-lg`}>
             {waketime.name}
           </p>
           <progress
-            class={`progress progress-primary w-4/5 xl:w-full text-primary border-0 bg-base-300 h-2 xl:h-3`}
+            class={`progress progress-primary w-full min-w-0 text-primary border-0 bg-base-300 h-2 xl:h-3`}
             value={waketime.percent}
             max={100}
           ></progress>

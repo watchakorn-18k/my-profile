@@ -5,9 +5,22 @@
   import { theme } from "$lib/theme";
   import FloatingSpeechControl from "$lib/components/FloatingSpeechControl.svelte";
   import { onMount } from "svelte";
+  import { onNavigate } from "$app/navigation";
 
   onMount(() => {
     theme.init();
+  });
+
+  onNavigate((navigation) => {
+    const doc = document as Document & { startViewTransition?: (cb: () => Promise<void>) => void };
+    const startViewTransition = doc.startViewTransition?.bind(doc);
+    if (!startViewTransition) return;
+    return new Promise<void>((resolve) => {
+      startViewTransition(async () => {
+        resolve();
+        await navigation.complete;
+      });
+    });
   });
 
   const navLinks = [
@@ -70,11 +83,11 @@
           </button>
         </div>
 
-        <div class="md:hidden flex items-center gap-1">
+        <div class="md:hidden flex min-w-0 flex-1 items-center justify-end gap-0 overflow-x-auto pl-3">
           {#each navLinks as link}
             <a
               href="{base}{link.href === '/' ? '/' : link.href}"
-              class="nav-link text-[9px]"
+              class="nav-link shrink-0 px-2 py-2 text-[9px]"
               class:active={
                 link.href === '/'
                   ? $page.url.pathname === base + '/' || $page.url.pathname === base
@@ -85,7 +98,7 @@
             </a>
           {/each}
           <button
-            class="theme-toggle"
+            class="theme-toggle shrink-0"
             on:click={() => theme.toggle()}
             aria-label="Toggle theme"
           >
@@ -108,7 +121,7 @@
         <div class="tag-bracket">
           [ WATCHAKORN BUDDEEWONG // SOFTWARE DEVELOPER // {currentYear} ]
         </div>
-        <div class="flex gap-6">
+        <div class="flex flex-wrap gap-x-6 gap-y-2">
           <a href="mailto:wk18k@proton.me" class="tag-bracket hover:text-ink transition-colors">
             EMAIL
           </a>

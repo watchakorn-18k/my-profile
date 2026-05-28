@@ -43,7 +43,7 @@
   <div class="py-16 md:py-24">
     <div class="port-tag tag-bracket mb-6" style="visibility:hidden;">[ PORTFOLIO // {portfolios.length} PROJECTS ]</div>
 
-    <h1 class="port-title heading-display text-3xl md:text-5xl mb-4" style="visibility:hidden;">
+    <h1 class="port-title heading-display safe-wrap text-3xl md:text-5xl mb-4" style="visibility:hidden;">
       SELECTED <span class="text-accent">WORK</span>
     </h1>
 
@@ -54,16 +54,16 @@
 
   <div class="section-border-anim section-border" />
 
-  <div class="py-8">
+  <div class="cq-grid py-8">
     {#each portfolios as port, index}
-      <article class="port-item grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 py-8 border-b border-border">
-        <div class="lg:col-span-1 flex items-start">
+      <article class="port-item port-item-cq grid min-w-0 grid-cols-1 gap-6 py-8 border-b border-border">
+        <div class="port-number-col flex items-start">
           <span class="port-number heading-display text-2xl md:text-3xl text-border" style="visibility:hidden;">
             {String(index + 1).padStart(2, '0')}
           </span>
         </div>
 
-        <div class="lg:col-span-5 port-image" style="visibility:hidden;">
+        <div class="port-image-col port-image" style="visibility:hidden;">
           <div class="aspect-video overflow-hidden border border-border bg-surface">
             <img
               src={port.image}
@@ -74,9 +74,9 @@
           </div>
         </div>
 
-        <div class="lg:col-span-6 port-info flex flex-col justify-between" style="visibility:hidden;">
+        <div class="port-info-col port-info min-w-0 flex flex-col justify-between" style="visibility:hidden;">
           <div>
-            <h2 class="heading-display text-lg md:text-xl mb-3">
+            <h2 class="heading-display safe-wrap text-lg md:text-xl mb-3">
               {port.name}
             </h2>
             <p class="text-muted text-xs leading-relaxed mb-4 max-w-md">
@@ -106,3 +106,4 @@
     {/each}
   </div>
 </section>
+

@@ -57,7 +57,7 @@
         <div class="cert-tag tag-bracket mb-6" style="visibility:hidden;">
           [ CERTIFICATIONS // {certificates.length} ITEMS ]
         </div>
-        <h1 class="cert-title heading-display text-3xl md:text-5xl mb-4" style="visibility:hidden;">
+        <h1 class="cert-title heading-display safe-wrap text-3xl md:text-5xl mb-4" style="visibility:hidden;">
           CERTIFICATES <span class="text-accent">&</span><br class="hidden md:block" /> CREDENTIALS
         </h1>
         <p class="cert-desc text-muted text-sm max-w-md" style="visibility:hidden;">
@@ -76,7 +76,7 @@
   <div class="section-border-anim section-border" />
 
   <div class="py-12 md:py-16">
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-px bg-border">
+    <div class="cq-grid cert-grid grid min-w-0 grid-cols-1 gap-px bg-border">
       {#each certificates as cert, i}
         <div class="cert-card bg-substrate group" style="visibility:hidden;">
           <div class="p-5 md:p-6 h-full flex flex-col">
@@ -84,7 +84,7 @@
               <span class="heading-display text-lg text-border/40 tabular-nums shrink-0">
                 {String(i + 1).padStart(2, '0')}
               </span>
-              <h2 class="text-[11px] font-bold uppercase tracking-wider leading-snug line-clamp-2">
+              <h2 class="min-w-0 text-[11px] font-bold uppercase tracking-wider leading-snug line-clamp-2">
                 {cert.name}
               </h2>
             </div>

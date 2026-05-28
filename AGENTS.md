@@ -47,8 +47,13 @@ Preserve the current industrial/brutalist portfolio style:
 - Prefer existing component classes such as `heading-display`, `tag-bracket`,
   `section-border`, `card-industrial`, `btn-primary`, and `btn-outline`.
 - Keep layouts responsive with Tailwind breakpoints already used in the app.
+- Use Container Queries (`.cq-panel`, `.cq-card`, `.cq-grid`) when layout should respond to component/container width instead of viewport width.
 - Avoid adding unrelated decorative gradients, soft card-heavy marketing layouts, or
   a visual style that conflicts with the current grid-based presentation.
+
+## Animation Approach
+
+Homepage scroll reveal/parallax uses native CSS Scroll-driven Animations (`animation-timeline: view()`) with visible static fallback. Keep JS/GSAP only for non-scroll or complex timeline animation.
 
 ## SvelteKit Guidance
 
