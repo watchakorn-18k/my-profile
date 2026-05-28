@@ -111,6 +111,16 @@
     { category: "DEVOPS / CLOUD", items: "Docker, Jenkins, AWS S3, GCP, Cloudflare, GitHub Actions" },
   ];
 
+  type WebMcpToolName = "QUERY_PROFILE" | "MATCH_PROJECT" | "DOWNLOAD_RESUME" | "ROUTE_SKILL";
+  type WebMcpLog = {
+    id: string;
+    tool: WebMcpToolName;
+    status: "ok";
+    input: Record<string, string>;
+    output: Record<string, string>;
+    ts: string;
+  };
+
   const webMcpPractices = [
     { id: "01", title: "TOOL STRATEGY", rule: "One tool = one function. No overlap = no agent confusion.", detail: "Register tools when useful, unregister when not. More tools = bigger context window hit + slower completion." },
     { id: "02", title: "NAMING", rule: "Distinguish execution vs initiation in tool names.", detail: "create-event fires now. start-event-creation-process redirects to form. Positive descriptions only." },
@@ -118,6 +128,50 @@
     { id: "04", title: "RELIABILITY", rule: "Rate limits: return meaningful error or tell user to do manually.", detail: "Update UI state after function completes — agent uses UI to plan next steps. Validate strict in code, loose in schema." },
     { id: "05", title: "EVALS", rule: "Use eval-driven dev: repeatable process, catches regressions.", detail: "Define: problem, baseline, ideal result, evaluation method. Don't patch narrow model quirks with narrow rules." },
   ];
+
+  const webMcpTools: Array<{
+    name: WebMcpToolName;
+    description: string;
+    input: Record<string, string>;
+    output: Record<string, string>;
+  }> = [
+    {
+      name: "QUERY_PROFILE",
+      description: "Return current profile summary for browser agent context.",
+      input: { scope: "profile", format: "compact" },
+      output: { name: "Watchakorn Buddeewong", role: "Full Stack Developer", stack: "Flutter + Vue/Nuxt/Svelte + Golang" },
+    },
+    {
+      name: "MATCH_PROJECT",
+      description: "Match visitor intent to strongest portfolio signal.",
+      input: { intent: "production app", domain: "mobile web backend" },
+      output: { match: "Pinto social media + POS platform", score: "0.94", reason: "full pipeline ownership" },
+    },
+    {
+      name: "DOWNLOAD_RESUME",
+      description: "Start resume download from exposed browser tool.",
+      input: { file: "resume_watchakorn_buddeewong.pdf", action: "download" },
+      output: { status: "download_started", file: "resume_watchakorn_buddeewong.pdf", source: "local asset" },
+    },
+    {
+      name: "ROUTE_SKILL",
+      description: "Route agent request to strongest engineering lane.",
+      input: { request: "build reliable product system", signal: "stack" },
+      output: { route: "mobile + web + backend", confidence: "0.91", nextTool: "MATCH_PROJECT" },
+    },
+  ];
+
+  let webMcpSelectedTool: WebMcpToolName = "QUERY_PROFILE";
+  let webMcpSequence = 1;
+  let webMcpLog: WebMcpLog[] = [{
+    id: "tool-call-001",
+    tool: "QUERY_PROFILE",
+    status: "ok",
+    input: webMcpTools[0].input,
+    output: webMcpTools[0].output,
+    ts: "READY",
+  }];
+  $: latestWebMcpLog = webMcpLog[0];
 
   const careerStartYear = 2024;
   const yearsExperience = `${new Date().getFullYear() - careerStartYear}+`;
@@ -153,6 +207,7 @@
   type TransformerStatus = "idle" | "loading" | "running" | "done" | "error";
   type PromptStatus = "idle" | "running" | "done" | "error";
   type PasskeyStep = "idle" | "challenge" | "biometric" | "signed" | "verified";
+  type TwoFactorStep = "idle" | "issued" | "entered" | "verified";
   type PromptSession = {
     prompt: (input: string) => Promise<string>;
     destroy?: () => void;
@@ -258,9 +313,14 @@
   let passkeyChallenge = "CHLG-0000";
   let passkeyLatency = "--";
   let passkeyCredential = "credential pending";
-  let passkeyTimeout: ReturnType<typeof setTimeout>;
-  let apiTimeout: ReturnType<typeof setTimeout>;
-  let devOpsTimeout: ReturnType<typeof setTimeout>;
+  let twoFactorStep: TwoFactorStep = "idle";
+  let twoFactorCode = "000000";
+  let twoFactorDrift = "0s";
+  let twoFactorResult = "waiting for second factor";
+  let twoFactorTimeout: ReturnType<typeof setTimeout> | undefined;
+  let passkeyTimeout: ReturnType<typeof setTimeout> | undefined;
+  let apiTimeout: ReturnType<typeof setTimeout> | undefined;
+  let devOpsTimeout: ReturnType<typeof setTimeout> | undefined;
 
   $: activeDemoMeta = demoModes.find((mode) => mode.id === activeDemo) ?? demoModes[0];
   $: highlightedRow = demoPulse % 3;
@@ -274,10 +334,30 @@
   $: transformerConfidence = topRoute ? `${Math.round(topRoute.score * 100)}%` : "--";
   $: transformerLabel = topRoute?.label ?? "awaiting route";
 
+  const runWebMcpTool = (toolName: WebMcpToolName) => {
+    const tool = webMcpTools.find((item) => item.name === toolName);
+    if (!tool) return;
+
+    webMcpSelectedTool = toolName;
+    webMcpSequence += 1;
+    const entry: WebMcpLog = {
+      id: `tool-call-${webMcpSequence.toString().padStart(3, "0")}`,
+      tool: tool.name,
+      status: "ok",
+      input: tool.input,
+      output: tool.output,
+      ts: new Date().toLocaleTimeString("en-US", { hour12: false }),
+    };
+    webMcpLog = [entry, ...webMcpLog].slice(0, 4);
+
+    if (toolName === "DOWNLOAD_RESUME") downloadFile();
+  };
+
   const resetTimedDemos = () => {
     clearTimeout(apiTimeout);
     clearTimeout(devOpsTimeout);
     clearTimeout(passkeyTimeout);
+    clearTimeout(twoFactorTimeout);
     apiStatus = "idle";
     devOpsStatus = "idle";
   };
@@ -348,6 +428,21 @@
     return dot / (Math.sqrt(leftMagnitude) * Math.sqrt(rightMagnitude));
   };
 
+  const updateRouterResult = (nextResults: RouterResult[]) => {
+    const apply = () => {
+      routerResults = nextResults;
+      transformerStatus = "done";
+    };
+
+    const startViewTransition = (document as Document & { startViewTransition?: (callback: () => void) => void }).startViewTransition;
+    if (startViewTransition) {
+      startViewTransition(apply);
+      return;
+    }
+
+    apply();
+  };
+
   const runTransformerDemo = async () => {
     const input = transformerInput.trim();
     if (!input || transformerStatus === "loading" || transformerStatus === "running") return;
@@ -373,18 +468,37 @@
       }
 
       const inputEmbedding = asVector(await embeddingExtractor(input, { pooling: "mean", normalize: true }));
-      routerResults = skillRoutes
+      const nextResults = skillRoutes
         .map((route, index) => ({
           ...route,
           score: cosineSimilarity(inputEmbedding, skillEmbeddings?.[index] ?? []),
         }))
         .sort((a, b) => b.score - a.score)
         .slice(0, 5);
-      transformerStatus = "done";
+      updateRouterResult(nextResults);
     } catch (error) {
       transformerError = error instanceof Error ? error.message : "Model execution failed";
       transformerStatus = "error";
     }
+  };
+
+  const runTwoFactorDemo = () => {
+    clearTimeout(twoFactorTimeout);
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    twoFactorCode = code;
+    twoFactorDrift = `${Math.floor(Math.random() * 6)}s`;
+    twoFactorResult = "TOTP code issued";
+    twoFactorStep = "issued";
+
+    twoFactorTimeout = setTimeout(() => {
+      twoFactorStep = "entered";
+      twoFactorResult = `user entered ${code}`;
+
+      twoFactorTimeout = setTimeout(() => {
+        twoFactorStep = "verified";
+        twoFactorResult = "session upgraded with second factor";
+      }, 500);
+    }, 650);
   };
 
   const runPasskeyCeremony = () => {
@@ -1006,7 +1120,7 @@
       </div>
     </div>
 
-    <div class="grid min-w-0 grid-cols-1 lg:grid-cols-[minmax(0,0.72fr)_minmax(0,1.28fr)] border border-border bg-card">
+    <div class="grid min-w-0 grid-cols-1 lg:grid-cols-[minmax(0,0.72fr)_minmax(0,1.28fr)] border border-border bg-card mb-6">
       <div class="scroll-reveal p-5 md:p-6 lg:border-r border-border bg-substrate">
         <div class="tag-bracket mb-4">[ AUTH CONTROL ]</div>
         <div class="grid grid-cols-2 gap-0 border border-border text-[10px] uppercase tracking-widest mb-5">
@@ -1057,6 +1171,64 @@
         <div class="border border-border bg-substrate p-5 min-h-[120px]">
           <div class="tag-bracket mb-4">[ ASSERTION OUTPUT ]</div>
           <div class="text-xs uppercase tracking-widest safe-wrap">{passkeyCredential}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid min-w-0 grid-cols-1 lg:grid-cols-[minmax(0,0.72fr)_minmax(0,1.28fr)] border border-border bg-card">
+      <div class="scroll-reveal p-5 md:p-6 lg:border-r border-border bg-substrate">
+        <div class="tag-bracket mb-4">[ 2FA CONTROL // TOTP ]</div>
+        <p class="text-xs text-muted leading-relaxed mb-5">
+          Second-factor simulator for legacy login hardening: generate one-time code, enter code, verify session.
+        </p>
+        <div class="grid grid-cols-2 gap-0 border border-border text-[10px] uppercase tracking-widest mb-5">
+          <div class="p-3 border-r border-border">
+            <div class="text-muted">STATUS</div>
+            <div class="text-accent font-bold mt-1">{twoFactorStep}</div>
+          </div>
+          <div class="p-3">
+            <div class="text-muted">CLOCK DRIFT</div>
+            <div class="text-accent font-bold mt-1">{twoFactorDrift}</div>
+          </div>
+        </div>
+        <button
+          type="button"
+          class="btn-primary w-full justify-center"
+          on:click={runTwoFactorDemo}
+          disabled={twoFactorStep === 'issued' || twoFactorStep === 'entered'}
+        >
+          {twoFactorStep === 'issued' || twoFactorStep === 'entered' ? 'VERIFYING 2FA' : 'RUN 2FA CHECK'}
+        </button>
+      </div>
+
+      <div class="scroll-reveal min-w-0 overflow-hidden p-4 md:p-6 bg-card">
+        <div class="grid grid-cols-1 min-[380px]:grid-cols-3 gap-0 border border-border text-[10px] uppercase tracking-widest mb-5 safe-wrap">
+          <div class="p-3 border-r border-border">
+            <div class="text-muted">METHOD</div>
+            <div class="text-accent font-bold mt-1">TOTP</div>
+          </div>
+          <div class="p-3 border-r border-border">
+            <div class="text-muted">CODE</div>
+            <div class="text-accent font-bold mt-1 tabular-nums">{twoFactorCode}</div>
+          </div>
+          <div class="p-3">
+            <div class="text-muted">PASSWORD</div>
+            <div class="text-accent font-bold mt-1">PLUS 1</div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-0 border border-border bg-substrate mb-5">
+          {#each ['ISSUE CODE', 'ENTER CODE', 'VERIFY'] as step, index}
+            <div class="p-4 border-b sm:border-b-0 sm:border-r border-border {(['issued', 'entered', 'verified'].indexOf(twoFactorStep) >= index) ? 'bg-accent text-white' : 'bg-card text-muted'}">
+              <div class="text-[10px] font-bold uppercase tracking-widest mb-8">2F-0{index + 1}</div>
+              <div class="heading-display text-lg break-words">{step}</div>
+            </div>
+          {/each}
+        </div>
+
+        <div class="border border-border bg-substrate p-5 min-h-[120px]">
+          <div class="tag-bracket mb-4">[ 2FA OUTPUT ]</div>
+          <div class="text-xs uppercase tracking-widest safe-wrap">{twoFactorResult}</div>
         </div>
       </div>
     </div>
@@ -1189,7 +1361,7 @@
           </div>
         </div>
 
-        <div class="border border-border bg-substrate p-5 min-h-[220px]">
+        <div class="router-result-panel border border-border bg-substrate p-5 min-h-[220px]">
           <div class="tag-bracket mb-4">[ INFERENCE OUTPUT ]</div>
           {#if transformerStatus === 'error'}
             <div class="heading-display text-3xl md:text-5xl text-accent mb-4">ERR</div>
@@ -1286,10 +1458,41 @@
       {/each}
     </div>
 
+    <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] border-x border-b border-border bg-card">
+      <div class="p-5 md:p-6 lg:border-r border-border bg-substrate">
+        <div class="tag-bracket mb-4">[ EXPOSED TOOLS ]</div>
+        <div class="grid grid-cols-1 gap-2 mb-5">
+          {#each webMcpTools as tool}
+            <button
+              type="button"
+              class="text-left border border-border px-4 py-3 text-[10px] font-bold uppercase tracking-widest transition-colors {webMcpSelectedTool === tool.name ? 'bg-accent text-white border-accent' : 'text-muted hover:text-ink hover:border-ink'}"
+              aria-pressed={webMcpSelectedTool === tool.name}
+              on:click={() => runWebMcpTool(tool.name)}
+            >
+              {tool.name}
+            </button>
+          {/each}
+        </div>
+        <div class="border-t border-border pt-4">
+          <div class="tag-bracket mb-2">[ TOOL CONTRACT ]</div>
+          <p class="text-xs text-muted leading-relaxed">
+            {webMcpTools.find((tool) => tool.name === webMcpSelectedTool)?.description}
+          </p>
+        </div>
+      </div>
+
+      <div class="min-w-0 overflow-hidden p-4 md:p-6">
+        <div class="tag-bracket mb-4">[ TOOL CALL LOG ]</div>
+        <output class="block border border-border bg-substrate p-4">
+          <pre class="max-h-[320px] overflow-auto whitespace-pre-wrap break-words text-[10px] leading-relaxed text-muted">{JSON.stringify(latestWebMcpLog, null, 2)}</pre>
+        </output>
+      </div>
+    </div>
+
     <div class="grid grid-cols-1 min-[380px]:grid-cols-3 gap-0 border-x border-b border-border text-[10px] uppercase tracking-widest safe-wrap">
-      <div class="p-3 border-r border-border text-muted">SOURCE: CHROME DEV DOCS</div>
-      <div class="p-3 border-r border-border text-muted">SPEC: WEBMCP</div>
-      <div class="p-3 text-accent font-bold">5 RULES</div>
+      <div class="p-3 border-r border-border text-muted">AGENT: BROWSER</div>
+      <div class="p-3 border-r border-border text-muted">RUNTIME: LOCAL MOCK</div>
+      <div class="p-3 text-accent font-bold">{webMcpLog.length} CALLS</div>
     </div>
   </div>
 
@@ -1525,6 +1728,22 @@
     inset: 0;
     overflow: hidden;
     white-space: pre;
+  }
+
+  .router-result-panel {
+    view-transition-name: router-result-panel;
+    contain: layout paint;
+    transition: border-color 180ms ease, background-color 180ms ease;
+  }
+
+  .router-result-panel:hover {
+    border-color: var(--color-accent);
+  }
+
+  ::view-transition-old(router-result-panel),
+  ::view-transition-new(router-result-panel) {
+    animation-duration: 260ms;
+    animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
   }
 
 </style>
