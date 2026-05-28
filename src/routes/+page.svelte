@@ -151,6 +151,20 @@
   type DevOpsStatus = "idle" | "building" | "deployed";
   type RedisMode = "cache" | "queue";
   type TransformerStatus = "idle" | "loading" | "running" | "done" | "error";
+  type PromptStatus = "idle" | "running" | "done" | "error";
+  type PasskeyStep = "idle" | "challenge" | "biometric" | "signed" | "verified";
+  type PromptSession = {
+    prompt: (input: string) => Promise<string>;
+    destroy?: () => void;
+  };
+  type PromptFactory = {
+    availability?: () => Promise<string>;
+    create: (options?: Record<string, unknown>) => Promise<PromptSession>;
+  };
+  type PromptWindow = Window & {
+    LanguageModel?: PromptFactory;
+    ai?: { languageModel?: PromptFactory };
+  };
   type WebGpuStatus = "idle" | "running" | "gpu" | "cpu" | "error";
   type MinimalGpu = {
     requestAdapter: () => Promise<{
@@ -234,6 +248,17 @@
   let webGpuBufferSize = "--";
   let webGpuFrameTime = "--";
   let webGpuMatrix = Array.from({ length: 64 }, (_, index) => index % 5 === 0);
+  let promptApiSupported = false;
+  let promptApiStatus: PromptStatus = "idle";
+  let promptInput = "Write one sharp sentence describing a brutalist developer portfolio.";
+  let promptOutput = "";
+  let promptError = "";
+  let promptSession: PromptSession | null = null;
+  let passkeyStep: PasskeyStep = "idle";
+  let passkeyChallenge = "CHLG-0000";
+  let passkeyLatency = "--";
+  let passkeyCredential = "credential pending";
+  let passkeyTimeout: ReturnType<typeof setTimeout>;
   let apiTimeout: ReturnType<typeof setTimeout>;
   let devOpsTimeout: ReturnType<typeof setTimeout>;
 
@@ -252,6 +277,7 @@
   const resetTimedDemos = () => {
     clearTimeout(apiTimeout);
     clearTimeout(devOpsTimeout);
+    clearTimeout(passkeyTimeout);
     apiStatus = "idle";
     devOpsStatus = "idle";
   };
@@ -361,6 +387,70 @@
     }
   };
 
+  const runPasskeyCeremony = () => {
+    clearTimeout(passkeyTimeout);
+    const startedAt = performance.now();
+    const challengeId = Math.floor(1000 + Math.random() * 9000);
+    passkeyChallenge = `CHLG-${challengeId}`;
+    passkeyCredential = "challenge issued";
+    passkeyStep = "challenge";
+
+    passkeyTimeout = setTimeout(() => {
+      passkeyStep = "biometric";
+      passkeyCredential = "platform authenticator unlocked";
+
+      passkeyTimeout = setTimeout(() => {
+        passkeyStep = "signed";
+        passkeyCredential = `pk-${challengeId.toString(16)}-signed`;
+
+        passkeyTimeout = setTimeout(() => {
+          passkeyStep = "verified";
+          passkeyLatency = `${Math.max(1, performance.now() - startedAt).toFixed(0)}ms`;
+        }, 400);
+      }, 450);
+    }, 450);
+  };
+
+  const getPromptFactory = (): PromptFactory | undefined => {
+    if (typeof window === "undefined") return undefined;
+    const promptWindow = window as PromptWindow;
+    return promptWindow.LanguageModel ?? promptWindow.ai?.languageModel;
+  };
+
+  const detectPromptApi = async () => {
+    const factory = getPromptFactory();
+    if (!factory) return;
+
+    if (factory.availability) {
+      try {
+        const status = await factory.availability();
+        if (status === "unavailable") return;
+      } catch {
+        return;
+      }
+    }
+    promptApiSupported = true;
+  };
+
+  const runPromptNode = async () => {
+    const input = promptInput.trim();
+    if (!input || promptApiStatus === "running") return;
+    const factory = getPromptFactory();
+    if (!factory) return;
+
+    promptApiStatus = "running";
+    promptError = "";
+
+    try {
+      promptSession ??= await factory.create();
+      promptOutput = await promptSession.prompt(input);
+      promptApiStatus = "done";
+    } catch (error) {
+      promptError = error instanceof Error ? error.message : "Prompt API failed";
+      promptApiStatus = "error";
+    }
+  };
+
   const runCpuWebGpuFallback = (startedAt: number) => {
     const values = Array.from({ length: 64 }, (_, index) => ((index * 17 + demoPulse * 11) % 29) > 13);
     webGpuMatrix = values;
@@ -421,6 +511,8 @@
   };
 
   onMount(() => {
+    detectPromptApi();
+
     const ctx = gsap.context(() => {
       const heroTl = gsap.timeline({ defaults: { duration: 0.7, ease: "power3.out" } });
 
@@ -489,7 +581,7 @@
       </div>
     </div>
 
-    <figure class="hero-portrait card-industrial mx-auto w-full max-w-2xl min-w-0 p-3 group 2xl:max-w-none" style="visibility:hidden;">
+    <figure class="hero-portrait card-industrial hidden min-w-0 p-3 group 2xl:block 2xl:w-full 2xl:max-w-none" style="visibility:hidden;">
       <div class="relative overflow-hidden">
         <img
           src="{base}/profile.png"
@@ -899,6 +991,149 @@
   </div>
 
   <div class="section-border-anim section-border scroll-line" />
+
+  <div class="passkey-section py-16 md:py-24">
+    <div class="scroll-reveal mb-8">
+      <div class="tag-bracket mb-4">[ PASSKEYS // WEBAUTHN FLOW ]</div>
+      <div class="grid grid-cols-1 lg:grid-cols-[0.7fr_1.3fr] gap-6 lg:gap-12">
+        <h2 class="heading-display text-2xl md:text-4xl">
+          PASSWORDLESS<br />AUTH CEREMONY
+        </h2>
+        <p class="text-muted text-xs leading-relaxed max-w-2xl">
+          Production-style passkey flow simulator: server challenge, device biometric unlock,
+          signed assertion, backend verification. No real credential is created.
+        </p>
+      </div>
+    </div>
+
+    <div class="grid min-w-0 grid-cols-1 lg:grid-cols-[minmax(0,0.72fr)_minmax(0,1.28fr)] border border-border bg-card">
+      <div class="scroll-reveal p-5 md:p-6 lg:border-r border-border bg-substrate">
+        <div class="tag-bracket mb-4">[ AUTH CONTROL ]</div>
+        <div class="grid grid-cols-2 gap-0 border border-border text-[10px] uppercase tracking-widest mb-5">
+          <div class="p-3 border-r border-border">
+            <div class="text-muted">CEREMONY</div>
+            <div class="text-accent font-bold mt-1">{passkeyStep}</div>
+          </div>
+          <div class="p-3">
+            <div class="text-muted">LATENCY</div>
+            <div class="text-accent font-bold mt-1">{passkeyLatency}</div>
+          </div>
+        </div>
+        <button
+          type="button"
+          class="btn-primary w-full justify-center"
+          on:click={runPasskeyCeremony}
+          disabled={passkeyStep === 'challenge' || passkeyStep === 'biometric' || passkeyStep === 'signed'}
+        >
+          {passkeyStep === 'challenge' || passkeyStep === 'biometric' || passkeyStep === 'signed' ? 'VERIFYING' : 'RUN PASSKEY FLOW'}
+        </button>
+      </div>
+
+      <div class="scroll-reveal min-w-0 overflow-hidden p-4 md:p-6 bg-card">
+        <div class="grid grid-cols-1 min-[380px]:grid-cols-3 gap-0 border border-border text-[10px] uppercase tracking-widest mb-5 safe-wrap">
+          <div class="p-3 border-r border-border">
+            <div class="text-muted">CHALLENGE</div>
+            <div class="text-accent font-bold mt-1">{passkeyChallenge}</div>
+          </div>
+          <div class="p-3 border-r border-border">
+            <div class="text-muted">AUTHENTICATOR</div>
+            <div class="text-accent font-bold mt-1">PLATFORM</div>
+          </div>
+          <div class="p-3">
+            <div class="text-muted">PASSWORD</div>
+            <div class="text-accent font-bold mt-1">NONE</div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-4 gap-0 border border-border bg-substrate mb-5">
+          {#each ['CHALLENGE', 'BIOMETRIC', 'ASSERTION', 'VERIFY'] as step, index}
+            <div class="p-4 border-b sm:border-b-0 sm:border-r border-border {(['challenge', 'biometric', 'signed', 'verified'].indexOf(passkeyStep) >= index) ? 'bg-accent text-white' : 'bg-card text-muted'}">
+              <div class="text-[10px] font-bold uppercase tracking-widest mb-8">0{index + 1}</div>
+              <div class="heading-display text-lg break-words">{step}</div>
+            </div>
+          {/each}
+        </div>
+
+        <div class="border border-border bg-substrate p-5 min-h-[120px]">
+          <div class="tag-bracket mb-4">[ ASSERTION OUTPUT ]</div>
+          <div class="text-xs uppercase tracking-widest safe-wrap">{passkeyCredential}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-border-anim section-border scroll-line" />
+
+  {#if promptApiSupported}
+    <div class="prompt-section py-16 md:py-24">
+      <div class="scroll-reveal mb-8">
+        <div class="tag-bracket mb-4">[ BUILT-IN AI // PROMPT API ]</div>
+        <div class="grid grid-cols-1 lg:grid-cols-[0.7fr_1.3fr] gap-6 lg:gap-12">
+          <h2 class="heading-display text-2xl md:text-4xl">
+            LOCAL<br />PROMPT NODE
+          </h2>
+          <p class="text-muted text-xs leading-relaxed max-w-2xl">
+            Gemini Nano running inside this browser — no server, no API key, model managed by Chrome.
+            Only visible when your browser ships the Prompt API.
+          </p>
+        </div>
+      </div>
+
+      <div class="grid min-w-0 grid-cols-1 lg:grid-cols-[minmax(0,0.72fr)_minmax(0,1.28fr)] border border-border bg-card">
+        <div class="scroll-reveal p-5 md:p-6 lg:border-r border-border bg-substrate">
+          <div class="tag-bracket mb-4">[ PROMPT CONTROL ]</div>
+          <div class="border border-border bg-card mb-4">
+            <div class="grid grid-cols-[1fr_auto] border-b border-border text-[10px] uppercase tracking-widest">
+              <div class="px-3 py-2 text-muted">INPUT PROMPT</div>
+              <div class="border-l border-border px-3 py-2 text-accent font-bold">LOCAL</div>
+            </div>
+            <textarea
+              bind:value={promptInput}
+              class="w-full min-h-[100px] resize-none p-4 font-mono text-xs uppercase leading-relaxed tracking-widest outline-none placeholder:text-muted"
+              style="background:#0a0a0a;color:#eaeaea;caret-color:#e61919;"
+              aria-label="Prompt input"
+              placeholder="TYPE A PROMPT..."
+            />
+          </div>
+          <button
+            type="button"
+            class="btn-primary w-full justify-center"
+            on:click={runPromptNode}
+            disabled={promptApiStatus === 'running' || !promptInput.trim()}
+          >
+            {promptApiStatus === 'running' ? 'GENERATING' : 'RUN PROMPT'}
+          </button>
+        </div>
+
+        <div class="scroll-reveal min-w-0 overflow-hidden p-4 md:p-6 bg-card">
+          <div class="grid grid-cols-2 gap-0 border border-border text-[10px] uppercase tracking-widest mb-5">
+            <div class="p-3 border-r border-border">
+              <div class="text-muted">MODEL</div>
+              <div class="text-accent font-bold mt-1">GEMINI NANO</div>
+            </div>
+            <div class="p-3">
+              <div class="text-muted">STATUS</div>
+              <div class="text-accent font-bold mt-1">{promptApiStatus}</div>
+            </div>
+          </div>
+
+          <div class="border border-border bg-substrate p-5 min-h-[180px]">
+            <div class="tag-bracket mb-4">[ MODEL OUTPUT ]</div>
+            {#if promptApiStatus === 'error'}
+              <div class="heading-display text-2xl text-accent mb-3">ERR</div>
+              <div class="text-xs text-muted break-words">{promptError}</div>
+            {:else if promptOutput}
+              <div class="text-xs leading-relaxed safe-wrap">{promptOutput}</div>
+            {:else}
+              <div class="text-xs text-muted uppercase tracking-widest">&gt; awaiting prompt</div>
+            {/if}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-border-anim section-border scroll-line" />
+  {/if}
 
   <div class="transformers-section py-16 md:py-24">
     <div class="transformers-title scroll-reveal tag-bracket mb-8">[ LOCAL AI NODE // TRANSFORMERS.JS V3 ]</div>
