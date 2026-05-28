@@ -3,6 +3,7 @@
   import { base } from "$app/paths";
   import { page } from "$app/stores";
   import { theme } from "$lib/theme";
+  import FloatingSpeechControl from "$lib/components/FloatingSpeechControl.svelte";
   import { onMount } from "svelte";
 
   onMount(() => {
@@ -98,6 +99,8 @@
   <main class="flex-1">
     <slot />
   </main>
+
+  <FloatingSpeechControl />
 
   <footer class="border-t-2 border-ink mt-auto">
     <div class="max-w-content mx-auto px-4 md:px-8 py-6">
